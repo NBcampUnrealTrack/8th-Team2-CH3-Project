@@ -4,17 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
-#include "ProjectAGameMode.generated.h"
+#include "AGameMode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CH3_TEAM2_API AProjectAGameMode : public AGameMode
+class CH3_TEAM2_API AAGameMode : public AGameMode
 {
 	GENERATED_BODY()
-	
+
 public:
-	AProjectAGameMode();
-	
+	AAGameMode();
 };

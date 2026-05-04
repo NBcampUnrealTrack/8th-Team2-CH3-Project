@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
-#include "ProjectAGameState.generated.h"
+#include "AGameState.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CH3_TEAM2_API AProjectAGameState : public AGameState
+class CH3_TEAM2_API AAGameState : public AGameState
 {
 	GENERATED_BODY()
 	
