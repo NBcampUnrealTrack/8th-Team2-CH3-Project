@@ -14,10 +14,6 @@ class CH3_TEAM2_API UAWeaponComponet : public USkeletalMeshComponent
 public:
 	UAWeaponComponet();
 	
-	// Projectile class to spawn 
-	UPROPERTY(EditDefaultsOnly, Category=Projectile)
-	TSubclassOf<class ACh3_Team2Projectile> ProjectileClass;
-
 	// Sound to play each time we fire 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	USoundBase* FireSound;
