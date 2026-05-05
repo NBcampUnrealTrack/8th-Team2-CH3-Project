@@ -1,65 +1,64 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Ch3_Team2WeaponComponent.generated.h"
+#include "AWeaponComponet.generated.h"
 
-class ACh3_Team2Character;
-
+class AAPlayer;
 UCLASS(Blueprintable, BlueprintType, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class CH3_TEAM2_API UCh3_Team2WeaponComponent : public USkeletalMeshComponent
+class CH3_TEAM2_API UAWeaponComponet : public USkeletalMeshComponent
 {
 	GENERATED_BODY()
-
 public:
-	/** Projectile class to spawn */
-	// 총알 데이터
-	UPROPERTY(EditAnywhere, Category="Projectile")
+	UAWeaponComponet();
+	
+	// Projectile class to spawn 
+	UPROPERTY(EditDefaultsOnly, Category=Projectile)
 	TSubclassOf<class ACh3_Team2Projectile> ProjectileClass;
 
-	/** Sound to play each time we fire */
+	// Sound to play each time we fire 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	USoundBase* FireSound;
 	
-	/** AnimMontage to play each time we fire */
+	// AnimMontage to play each time we fire 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	UAnimMontage* FireAnimation;
 
-	/** Gun muzzle's offset from the characters location */
+	// Gun muzzle's offset from the characters location 
 	// 발사위치
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	FVector MuzzleOffset;
 
-	/** MappingContext */
-	// 발사모션
+	// MappingContext 
+	// InputMapping 발사 입력 Mapping
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	class UInputMappingContext* FireMappingContext;
 
-	/** Fire Input Action */
+	// Fire Input Action 
+	// 발사 입력 엑션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
 
-	/** Sets default values for this component's properties */
-	UCh3_Team2WeaponComponent();
+	// Sets default values for this component's properties 
+	//UCh3_Team2WeaponComponent();
 
-	/** Attaches the actor to a FirstPersonCharacter */
+	// Attaches the actor to a FirstPersonCharacter 
 	UFUNCTION(BlueprintCallable, Category="Weapon")
-	bool AttachWeapon(ACh3_Team2Character* TargetCharacter);
+	bool AttachWeapon(AAPlayer* TargetCharacter);
 
-	/** Make the weapon Fire a Projectile */
+	// Make the weapon Fire a Projectile 
 	UFUNCTION(BlueprintCallable, Category="Weapon")
 	void Fire();
-
+	
 protected:
 	/** Ends gameplay for this component. */
 	UFUNCTION()
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-private:
+	
 public:
 	/** The Character holding this weapon*/
 	UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Input")
-	ACh3_Team2Character* Character;
+	AAPlayer* Character;
 };

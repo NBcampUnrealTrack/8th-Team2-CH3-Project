@@ -75,8 +75,15 @@ private:
 	int32 i_MaxHp;
 	
 public:
+	// 받는 값
+	// 
 	void SetHp(int32 Set_Hp) { i_MaxHp = Set_Hp;}
-	const int32 GetHp() {return i_CurrentHp;}
-	void AddHp(int32 Add_Hp) ;
+	// 현제 체력 회복
+	void AddCurrentHp(int32 Add_Hp) ;
+	// 최대 체력 증가
+	void AddMaxHp(int32 Add_Max_Hp);
 	
+	// return 값
+	// 체력 return 
+	const int32 GetHp() {return i_CurrentHp;}
 };

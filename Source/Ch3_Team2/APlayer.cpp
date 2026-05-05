@@ -96,10 +96,16 @@ void AAPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	}
 }
 
-void AAPlayer::AddHp(int32 Add_Hp)
+void AAPlayer::AddCurrentHp(int32 Add_Hp)
 {
 	if (i_CurrentHp + Add_Hp <= i_MaxHp)
 		i_CurrentHp += Add_Hp;
 	else
 		i_CurrentHp = i_MaxHp;
+}
+
+void AAPlayer::AddMaxHp(int32 Add_Max_Hp)
+{
+	i_MaxHp += Add_Max_Hp;
+	i_CurrentHp += Add_Max_Hp;
 }

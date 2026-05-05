@@ -1,31 +1,32 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Ch3_Team2PickUpComponent.h"
 
-UCh3_Team2PickUpComponent::UCh3_Team2PickUpComponent()
+#include "PickUpComp.h"
+
+UPickUpComp::UPickUpComp()
 {
 	// Setup the Sphere Collision
 	SphereRadius = 32.f;
 }
 
-void UCh3_Team2PickUpComponent::BeginPlay()
+void UPickUpComp::BeginPlay()
 {
 	Super::BeginPlay();
 
 	// Register our Overlap Event
-	OnComponentBeginOverlap.AddDynamic(this, &UCh3_Team2PickUpComponent::OnSphereBeginOverlap);
+	OnComponentBeginOverlap.AddDynamic(this, &UPickUpComp::OnSphereBeginOverlap);
 }
 
-void UCh3_Team2PickUpComponent::OnSphereBeginOverlap(
+void UPickUpComp::OnSphereBeginOverlap(
 	UPrimitiveComponent* OverlappedComponent
-	, AActor* OtherActor
-	, UPrimitiveComponent* OtherComp
+	, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp
 	, int32 OtherBodyIndex
 	, bool bFromSweep
 	, const FHitResult& SweepResult)
 {
 	// Checking if it is a First Person Character overlapping
-	ACh3_Team2Character* Character = Cast<ACh3_Team2Character>(OtherActor);
+	AAPlayer* Character = Cast<AAPlayer>(OtherActor);
 	if(Character != nullptr)
 	{
 		// Notify that the actor is being picked up
