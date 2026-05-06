@@ -6,9 +6,7 @@
 #include "GunBase.h"
 #include "GunPistol.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class CH3_TEAM2_API AGunPistol : public AGunBase
 {

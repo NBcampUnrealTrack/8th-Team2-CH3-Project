@@ -30,8 +30,7 @@ public:
 	UFUNCTION(BlueprintCallable) //BlueprintImplementableEvent
 	virtual void Fire();
 	
-	
-protected:
+public:
 
 	//소모되는 탄약수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
