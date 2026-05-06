@@ -12,6 +12,7 @@ class USkeletalMeshComponent;
 class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
+class USphereComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -86,13 +87,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
 	float ActiveSkilltime;
 	
+	// 범위 안에 들어온 Actor(  경험치 ) 를 끌어오는 comp
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ExpDrop")
+	USphereComponent* MagnetComp; 
+	
+	// 하나더 어느정도 범위 안으로 들어왔으면 overlap 판정하여 경험치 획득 판정
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ExpDrop")
+	USphereComponent* DropExpComp;
+	
 	// 경험치 드랍 자석 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
 	float MagnetRadius;
 	
 	// 경험치
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
-	int32 EXP;
+	int32 Exp;
+	// 경험치
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
+	int32 LevelUpExp;
 	
 	// 현제 레벨
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
@@ -109,5 +121,10 @@ public:
 	// return 값
 	// 체력 return 
 	const int32 GetHp() {return CurrentHp;}
+	
+	// 경험치 추가 함수 
+	void AddExp(int32 Add_Exp);
+	
+	void LevelupStat();
 	
 };

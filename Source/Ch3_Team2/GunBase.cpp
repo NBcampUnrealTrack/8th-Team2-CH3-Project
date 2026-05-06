@@ -16,7 +16,10 @@ void AGunBase::UpdateAmmo_Implementation()
 void AGunBase::Reload_Implementation()
 {
 	CurrentAmmo = MaxAmmo;
+}
 
+AGunBase::AGunBase()
+{
 }
 
 void AGunBase::Fire()
@@ -25,7 +28,6 @@ void AGunBase::Fire()
 	if (CheckAmmo())
 	{
 		// 순서는 여기서 마음대로 
-
 		//PlayEffects();
 		//ProcessFiring();
 		UpdateAmmo();

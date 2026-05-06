@@ -12,6 +12,7 @@ class CH3_TEAM2_API AGunBase : public AWeaponBase
 	GENERATED_BODY()
 	
 public:
+	AGunBase();
 	virtual void Fire() override;
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
