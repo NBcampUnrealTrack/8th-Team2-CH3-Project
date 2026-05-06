@@ -34,6 +34,13 @@ AAPlayer::AAPlayer()
 
 	MaxHp = 100;
 	CurrentHp = MaxHp;
+	MoveSpeed = 600.0f;
+	JumpZVelocity = 420.0f;
+	SkillCooldown = 20.0f;
+	ActiveSkilltime = 5.0f;
+	MagnetRadius = 10.0f;
+	EXP = 0;
+	Level = 1;
 }
 
 void AAPlayer::Move(const FInputActionValue& Value)
