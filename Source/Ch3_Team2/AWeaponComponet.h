@@ -46,7 +46,7 @@ public:
 
 	// Make the weapon Fire a Projectile 
 	UFUNCTION(BlueprintCallable, Category="Weapon")
-	void Fire();
+	virtual void Fire();
 	
 protected:
 	/** Ends gameplay for this component. */
@@ -57,4 +57,30 @@ public:
 	/** The Character holding this weapon*/
 	UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Input")
 	AAPlayer* Character;
+	
+	//일단 임시
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//TObjectPtr<USceneComponent> Root;
+	
+	// 발사 위치
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<class UArrowComponent> FirePoint;
+	
+	//연사속도 제어를 위한 핸들
+	UPROPERTY(BlueprintReadWrite)
+	FTimerHandle TimerFireDelay;
+	
+	UFUNCTION()
+	void HandleFireDelay();
+	
+	//연사속도
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float RoF;
+	
+	//쏠수있나 발사 여부 확인
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CanFire;
+	//유효사거리
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Range;
 };

@@ -70,6 +70,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
 	int32 MaxHp;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
+	// 임시 코드
+	float Speed;
 public:
 	// 받는 값
 	void SetHp(int32 Set_Hp) { MaxHp = Set_Hp;}
@@ -78,7 +81,11 @@ public:
 	// 최대 체력 증가
 	void AddMaxHp(int32 Add_Max_Hp);
 	
+	
+	
 	// return 값
 	// 체력 return 
 	const int32 GetHp() {return CurrentHp;}
+	
+	
 };

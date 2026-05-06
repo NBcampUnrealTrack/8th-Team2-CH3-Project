@@ -110,3 +110,5 @@ void AAPlayer::AddMaxHp(int32 Add_Max_Hp)
 	MaxHp += Add_Max_Hp;
 	CurrentHp += Add_Max_Hp;
 }
+
+

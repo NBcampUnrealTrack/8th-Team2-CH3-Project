@@ -6,6 +6,7 @@
 // 기본 불릿 나중에 발꿀것
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Components/ArrowComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -13,11 +14,17 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 
+
 UAWeaponComponet::UAWeaponComponet()
 {
 	// 총알 발사 위치 좌표
 	// Default offset from the character location for projectiles to spawn
 	MuzzleOffset = FVector(100.0f, 0.0f, 10.0f);
+
+	
+	Range = 100.f;
+	RoF = 1.f;
+	CanFire = true;
 }
 
 bool UAWeaponComponet::AttachWeapon(AAPlayer* TargetCharacter)
@@ -32,8 +39,10 @@ bool UAWeaponComponet::AttachWeapon(AAPlayer* TargetCharacter)
 	{
 		return false;
 	}
+
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 	AttachToComponent(Character->GetMesh1P(), AttachmentRules, FName(TEXT("GripPoint")));
+	
 	if (APlayerController* PlayerController = Cast<APlayerController>(Character->GetController()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -56,7 +65,19 @@ void UAWeaponComponet::Fire()
 	{
 		return;
 	}
+	
+	CanFire = false;
+	
+	GetWorld()->GetTimerManager().SetTimer(TimerFireDelay, this, &UAWeaponComponet::HandleFireDelay, 1.f / RoF, false);
 }
+
+void UAWeaponComponet::HandleFireDelay()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TimerFireDelay);
+
+	CanFire = true;
+}
+
 void UAWeaponComponet::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	// ensure we have a character owner
@@ -75,3 +96,4 @@ void UAWeaponComponet::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	// maintain the EndPlay call chain
 	Super::EndPlay(EndPlayReason);
 }
+
