@@ -15,11 +15,10 @@ public:
 	AGunBase();
 	virtual void Fire() override;
 	
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent,Category= "Weapon")
 	void Reload();
-	
 protected:
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
 	// NatveEnvent로 하이브리드 형으로 만들면 
 	//_Implementaion 함수 이름 뒤에 작성해야하고 
 	// 블루 프린트로 위임했기 때문에 코드 작성하면 안된다.
