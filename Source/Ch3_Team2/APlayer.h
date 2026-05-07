@@ -44,7 +44,10 @@ class CH3_TEAM2_API AAPlayer : public ACharacter
 	UInputAction* MoveAction;
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* LookAction;
+	UInputAction* LookAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SkillActive;
 	
 public:
 	
@@ -52,9 +55,14 @@ public:
 	void Move(const FInputActionValue& Value);
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+	
+	// 스킬입력 키
+	void SkillInputKey(const FInputActionValue& Value);
 	// APawn interface
 	virtual void NotifyControllerChanged() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+	
+	virtual void Tick(float DletaTime) override;
 	
 //public:
 	// 생성자
@@ -78,14 +86,6 @@ public:
 	// 점프 z 값
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
 	float JumpZVelocity;
-	
-	// 액티브 스킬 사용후 재사용 대기 시간
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
-	float SkillCooldown;
-	
-	//스킬 효과가 유지되는 지속 시간
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
-	float ActiveSkilltime;
 	
 	// 범위 안에 들어온 Actor(  경험치 ) 를 끌어오는 comp
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ExpDrop")
@@ -127,4 +127,25 @@ public:
 	
 	void LevelupStat();
 	
+	//------- 스킬 라인 ------
+	// 액티브 스킬 사용후 재사용 대기 시간
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	float SkillCoolTime;
+
+	// 현제  스킬 쿨타임
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	float CurrentSkillCoolTime;
+	
+	//스킬 효과가 유지되는 지속 시간
+	const float ActiveSkilltime =5.0f;
+	
+	// 스킬 시전 지속시간 스킬handle
+	FTimerHandle SkillTimerHandle;
+	// 속도 감소 스킬 활성화
+	void SkillTimeSlow();
+	
+	//  감소된 속도 정상화 
+	void SkillTimeNormal();
+	
+	void ActivateSkillCooldown(float DeltaTime);
 };
