@@ -5,17 +5,22 @@
 
 bool AGunBase::CheckAmmo_Implementation()
 {
-	return AmmoPerFire <= CurrentAmmo;
+	// 
+	UE_LOG(LogTemp, Warning, TEXT("Checking : %s "),CurrentAmmo <= 0 ? TEXT("true")
+		: TEXT("False"));
+	return CurrentAmmo <= 0;
 }
 
 void AGunBase::UpdateAmmo_Implementation()
 {
-	CurrentAmmo -= AmmoPerFire;
+	CurrentAmmo -= 1;
 }
 
 void AGunBase::Reload_Implementation()
 {
 	CurrentAmmo = MaxAmmo;
+	UE_LOG(LogTemp, Warning, TEXT("CurrentAmmo : %d "), CurrentAmmo);
+	UE_LOG(LogTemp, Warning, TEXT("MaxAmmo : %d "), MaxAmmo);
 }
 
 AGunBase::AGunBase()

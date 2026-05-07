@@ -18,13 +18,16 @@ AWeaponBase::AWeaponBase()
 	FirePoint = CreateDefaultSubobject<UArrowComponent>(TEXT("FirePoint"));
 	FirePoint->SetupAttachment(GunMesh);
 
-	AmmoPerFire = 1;
-	CurrentAmmo = 0;
+	CurrentAmmo = 1;
 	MaxAmmo = 12;
 	RoundsPerSecond = 1.f;
 	CanFire = true;
 	EffectiveRange = 1000.f;
-	DamagePerHit = 100.f;
+	AmmoDamage = 100.f;
+	ReloadTime = 1.2;
+	
+	// 연사 속도는 흠...
+	//SpreadAngle = (3.0, 0.2);
 }
 
 void AWeaponBase::Fire()
