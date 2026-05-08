@@ -66,7 +66,7 @@ AAPlayer::AAPlayer()
 	MagnetRadius = 1000.0f;
 	// 경험치 및 레벨업 관련
 	Exp = 0;
-	LevelUpExp = 10;
+	LevelUpExp = 200;
 	Level = 1;
 	// 점프 높이 초기값 420
 	GetCharacterMovement()->JumpZVelocity = 420.0f;
@@ -240,10 +240,12 @@ void AAPlayer::AddExp(int32 Add_Exp)
 	// 만약  Lvelup 시 레벨업 경험치 증가시 따로 추가할 것
 	 if (Exp >= LevelUpExp)
 	 {
-	 	Exp -= LevelUpExp;
 	 	// 최대 레벨이 16이기 때문에 일단 작성
 	 	if (Level < 16)
+	 	{
+	 		Exp -= LevelUpExp;
 	 		LevelupStat();
+	 	}
 	 }
 }
 

@@ -24,7 +24,6 @@ public:
 	
 	bool bIsAttracted;
 	float MoveSpeed;
-	
 
 protected:
 	virtual void BeginPlay() override;

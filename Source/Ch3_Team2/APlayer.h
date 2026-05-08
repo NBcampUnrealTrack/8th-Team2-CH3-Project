@@ -114,6 +114,7 @@ public:
 	int32 Level;
 	
 public:
+	// ---- stat -----
 	// 받는 값
 	void SetHp(int32 Set_Hp) { MaxHp = Set_Hp;}
 	// 현제 체력 회복
