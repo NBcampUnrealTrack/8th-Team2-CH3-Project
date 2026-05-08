@@ -24,17 +24,23 @@ public:
 	USkeletalMeshComponent* GunMesh;
 	
 	// 발사 위치.... 이건  흠..
+	// 수정 예정
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<class UArrowComponent> FirePoint;
 
+	// 블루프린트에서 사용하기 위해서 
 	UFUNCTION(BlueprintCallable) //BlueprintImplementableEvent
 	virtual void Fire();
 	
 public:
-
-	//소모되는 탄약수
+	
+	//데미지양
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 AmmoPerFire;
+	float AmmoDamage;
+
+	// 크리티컬 데미지
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CritMultiplier;
 
 	//남은 탄약수
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
@@ -51,26 +57,28 @@ public:
 	//유효사거리
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float EffectiveRange;
-
-	//데미지양
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float DamagePerHit;
-
-	//쏠수있나
+	
+	// 사격 가능 여부 
 	UPROPERTY(BlueprintReadWrite)
 	bool CanFire;
 
-	//연사속도 제어를 위한 핸들
-	UPROPERTY(BlueprintReadWrite)
-	FTimerHandle TimerFireDelay;
-	
 	// 반동
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector2D SpreadAngle;
 	
+	// 장전시간
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ReloadTime;
+	
+	//연사속도 제어를 위한 핸들
+	UPROPERTY(BlueprintReadWrite)
+	FTimerHandle TimerFireDelay;
+	
 	UFUNCTION()
 	void HandleFireDelay();
 	
+	// 공격력 추가
+	void AddDmage(float Add_Damage){ AmmoDamage += Add_Damage;}
+	
 	//PartsLevel 부품은 일단 Keep
-
 };

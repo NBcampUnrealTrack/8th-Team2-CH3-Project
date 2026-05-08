@@ -5,12 +5,14 @@
 
 bool AGunBase::CheckAmmo_Implementation()
 {
-	return AmmoPerFire <= CurrentAmmo;
+	UE_LOG(LogTemp, Warning, TEXT("Checking : %s "),CurrentAmmo <= 0 ? TEXT("true")
+		: TEXT("False"));
+	return CurrentAmmo <= 0;
 }
 
 void AGunBase::UpdateAmmo_Implementation()
 {
-	CurrentAmmo -= AmmoPerFire;
+	CurrentAmmo -= 1;
 }
 
 void AGunBase::Reload_Implementation()
@@ -20,6 +22,7 @@ void AGunBase::Reload_Implementation()
 
 AGunBase::AGunBase()
 {
+	
 }
 
 void AGunBase::Fire()
@@ -31,7 +34,7 @@ void AGunBase::Fire()
 		//PlayEffects();
 		//ProcessFiring();
 		UpdateAmmo();
-
+	
 		Super::Fire();
 		return;
 	}
