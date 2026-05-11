@@ -4,6 +4,8 @@
 #include "WeaponBase.h"
 #include "Components/ArrowComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
 // Sets default values
 AWeaponBase::AWeaponBase()
 {
@@ -43,4 +45,3 @@ void AWeaponBase::HandleFireDelay()
 
 	CanFire = true;
 }
-
