@@ -28,9 +28,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<class UArrowComponent> FirePoint;
 
-	// 블루프린트에서 사용하기 위해서 
-	UFUNCTION(BlueprintCallable) //BlueprintImplementableEvent
-	virtual void Fire();
+	
 	
 public:
 	
@@ -74,11 +72,9 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	FTimerHandle TimerFireDelay;
 	
-	UFUNCTION()
-	void HandleFireDelay();
 	
-	// 공격력 추가
-	void AddDmage(float Add_Damage){ AmmoDamage += Add_Damage;}
+	
+	
 	
 	
 };

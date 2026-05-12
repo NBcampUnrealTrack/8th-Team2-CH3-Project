@@ -124,8 +124,6 @@ void AAPlayer::Look(const FInputActionValue& Value)
 }
 void AAPlayer::SkillInputKey(const FInputActionValue& Value)
 {
-	
-	
 	if (SkillInstance)
 	{
 		// Component 

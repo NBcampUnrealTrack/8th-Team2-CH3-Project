@@ -6,8 +6,6 @@
 
 bool AGunBase::CheckAmmo_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Checking : %s "),CurrentAmmo <= 0 ? TEXT("true")
-		: TEXT("False"));
 	return CurrentAmmo <= 0;
 }
 
@@ -23,26 +21,45 @@ void AGunBase::Reload_Implementation()
 
 AGunBase::AGunBase()
 {
-	
+	Stats_Initialize();
 }
 
-void AGunBase::Fire()
+void AGunBase::Stats_Initialize()
 {
-	if (!CanFire) return;
-	if (CheckAmmo())
-	{
-		// 순서는 여기서 마음대로 
-		//PlayEffects();
-		//ProcessFiring();
-		UpdateAmmo();
-	
-		Super::Fire();
-		return;
-	}
+	CurrentAmmo = 1;
+	MaxAmmo = 12;
+	RoundsPerSecond = 1.f;
+	CanFire = true;
+	EffectiveRange = 1000.f;
+	AmmoDamage = 100.f;
+	ReloadTime = 1.2;
 }
 
 void AGunBase::Fire_Gun(FVector Location, FVector Direction)
 {
+	if (!CanFire) return;
+	if (CheckAmmo())
+	{
+		Fire(Location,Direction);
+		// 순서는 여기서 마음대로 
+		//PlayEffects();
+		// 총알 업로드
+		UpdateAmmo();
+		return;
+	}
+}
+void AGunBase::Fire(FVector Location, FVector Direction)
+{
+	// 사격시 
+	CanFire = false;
+
+	GetWorld()->GetTimerManager().SetTimer(
+		TimerFireDelay
+		,this
+		,&AGunBase::HandleFireDelay
+		,1.f / RoundsPerSecond
+		,false);
+	
 	// 1. 끝점 계산
 	FVector End = Location + (Direction * EffectiveRange);
 
@@ -82,4 +99,11 @@ void AGunBase::Fire_Gun(FVector Location, FVector Direction)
 		}
 		UE_LOG(LogTemp, Log, TEXT("Hit Actor: %s"), *HitActor->GetName());
 	}
+}
+
+void AGunBase::HandleFireDelay()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TimerFireDelay);
+
+	CanFire = true;
 }
