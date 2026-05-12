@@ -28,6 +28,10 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void UpdateAmmo();
 	
+	// 블루프린트의 "fireGun" Custom Event에 해당하는 함수
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void Fire_Gun(FVector Location, FVector Direction);
+	
 	// 이부분은 아직 keep
 	/*
 	//총을 어떻게 쏠지

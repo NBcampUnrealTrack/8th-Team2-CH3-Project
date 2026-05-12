@@ -80,5 +80,5 @@ public:
 	// 공격력 추가
 	void AddDmage(float Add_Damage){ AmmoDamage += Add_Damage;}
 	
-	//PartsLevel 부품은 일단 Keep
+	
 };
