@@ -25,7 +25,10 @@ public:
 	
 	//스텟 초기화
 	void SetMonsterStats(const FMonsterStats& InStats);
-
+	
+	//스텟 컴포넌트 읽기
+	FORCEINLINE class UMonsterStatComponent* GetStatComponent() const { return StatComp; }
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UMonsterStatComponent* StatComp;
