@@ -27,7 +27,7 @@ public:
 	float GetAttackRange() const;
 	float GetAttackRate() const;
 	bool IsDead() const;
-public:	
+
 	UPROPERTY(BlueprintAssignable)
 	FOnDeathDelegate OnDeath;
 

@@ -39,5 +39,5 @@ struct  FMonsterStats
 	int32 Score;
 	
 	FMonsterStats():MaxHP(100.f),CurrentHP(100.f),AttackDamage(5.f),MaxWalkSpeed(300.f),MovementSpeed(300.f),
-	AttackRate(1.5f),AttackRange(100.f),Score(100){};
+	AttackRate(1.5f),AttackRange(100.f),MonsterGrade(EMonsterGrade::Normal),Score(100){};
 };
