@@ -36,6 +36,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float RelicDamage;
 
+	// 최종 데미지 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float FinalDamage;
+	
+	// 전체 공격력 증가 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float TotalDamageUp;
 	// 크리티컬 데미지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CritMultiplier;

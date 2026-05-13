@@ -134,14 +134,16 @@ void AAPlayer::Reload(const FInputActionValue& Value)
 	// 무기 리로드
 	Gun->Reload();
 }
-
 void AAPlayer::SkillInputKey(const FInputActionValue& Value)
 {
 	if (SkillInstance)
 	{
 		// Component 
 		USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance);
-		Skill->RegisterComponent();
+		// 등록 했는지 확인
+		if (!Skill->IsRegistered())
+			Skill->RegisterComponent();
+		// 호출 되는지 확인
 		GEngine->AddOnScreenDebugMessage(
 	-1,	3.0f,FColor::Yellow,
 	FString::Printf(TEXT("Skill Active: Cool %s"), Skill));
@@ -150,7 +152,6 @@ void AAPlayer::SkillInputKey(const FInputActionValue& Value)
 			Skill->ActiveCheck();
 	}
 }
-
 void AAPlayer::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
@@ -190,6 +191,7 @@ void AAPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		//UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
+
 void AAPlayer::AddCurrentHp(int32 Add_Hp)
 {
 	// 체력회복시 회복된 량이 최대 체력보다 많으면 적으면
@@ -209,12 +211,23 @@ void AAPlayer::AddMaxHp(int32 Add_Max_Hp)
 	CurrentHp += Add_Max_Hp;
 }
 
+void AAPlayer::AddPlayerSpeed(float Add_Speed)
+{
+	MoveSpeed += Add_Speed;
+}
+
 void AAPlayer::DropAddDamageRelic(float AddDamage)
 {
 	AGunBase* Gun = Cast<AGunBase>(ChildActor);
 	// 성유물 로 인한 공격력 증가 
 	Gun->AddRelicDamage(AddDamage);
-	
+}
+
+void AAPlayer::TotalDamageUpGrade(float AddDamage)
+{
+	AGunBase* Gun = Cast<AGunBase>(ChildActor);
+	// 성유물 로 인한 공격력 증가 
+	Gun->AddTotalDamage(AddDamage);
 }
 
 void AAPlayer::AddExp(int32 Add_Exp)
@@ -246,6 +259,16 @@ void AAPlayer::LevelupStat()
 	MoveSpeed += 18.0f;
 	// 점프 높이는 즉시 증가 
 	GetCharacterMovement()->JumpZVelocity += 8.0f;
+}
+
+void AAPlayer::DegreaseSkiilCoolTiem(float SkillCoolTime)
+{
+	if (SkillInstance)
+	{
+		// Component 
+		USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance);
+		Skill->SkiilDegreaseTime(SkillCoolTime);
+	}
 }
 
 
