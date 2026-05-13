@@ -138,7 +138,8 @@ public:
 	// 이동속도 증가 
 	void AddPlayerSpeed(float Add_Speed);
 	// 공격력 증가 성유물 획득 및 무기에 적용
-	void TotalDamageUpGrade(float AddRelicBonus, float TotalBonus);
+	void TotalDamageUpGrade(float AddRelicBonus, float TotalBonus ,float Critical);
+	
 	
 	// return 값
 	// 체력 return 
@@ -158,9 +159,6 @@ public:
 	//UOBject를 사용하거나
 	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Skill")
 	UObject* SkillInstance;
-	
-	
 	// 스킬 쿨타임 감소 호출함수 
 	void DegreaseSkiilCoolTiem(float SkillCoolTime);
-	
 };

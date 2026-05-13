@@ -128,11 +128,12 @@ void AGunBase::HandleFireDelay()
 	CanFire = true;
 }
 
-void AGunBase::AddDamage(float Add_RelicDamage,float Add_TotalDamage)
+void AGunBase::AddDamage(float Add_RelicDamage,float Add_TotalDamage,float Critical)
 {
 	// 성유물 기본 공격력 증가
 	RelicBonus += Add_RelicDamage;
 	TotalBonus += Add_TotalDamage;
+	CritMultiplier += Critical;
 	FinalDamage = (BaseDamage * (1 + Bullet.Value )+ RelicBonus ) * TotalBonus;
 }
 void AGunBase::SelectParts(EPartsName parts)

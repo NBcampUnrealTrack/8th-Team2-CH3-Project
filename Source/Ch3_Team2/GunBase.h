@@ -40,7 +40,7 @@ public:
 	// RPM ( 연사 속도 )시간 끝내는함수 
 	void HandleFireDelay();
 	// 공격력 추가
-	void AddDamage(float Add_RelicDamage,float Add_TotalDamage);
+	void AddDamage(float Add_RelicDamage,float Add_TotalDamage,float Critical);
 	
 	// 최종 데미지 량
 	// 성유물 
@@ -49,7 +49,6 @@ public:
 	void FinalDamageCheck (){ }
 	// 파츠 선택
 	void SelectParts(EPartsName parts);
-	
 	// 무기 Parts
 	// 총알
 	FGunParts Bullet;
