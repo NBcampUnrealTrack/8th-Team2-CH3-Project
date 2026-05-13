@@ -161,4 +161,11 @@ public:
 	UObject* SkillInstance;
 	// 스킬 쿨타임 감소 호출함수 
 	void DegreaseSkiilCoolTiem(float SkillCoolTime);
+	
+	virtual float TakeDamage(
+		float DamageAmount
+		,struct FDamageEvent const& DamageEvent
+		,class AController* EventInstigator
+		,AActor* DamageCauser)
+	override;
 };

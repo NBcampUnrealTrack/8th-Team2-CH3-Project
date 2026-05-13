@@ -58,7 +58,6 @@ AAPlayer::AAPlayer()
 
 void AAPlayer::PlayerInit()
 {
-	
 	// -- 스킬 Component 장착
 	ChildActor->AttachToComponent(
 	Mesh1P,
@@ -218,9 +217,12 @@ void AAPlayer::AddPlayerSpeed(float Add_Speed)
 }
 void AAPlayer::TotalDamageUpGrade(float AddRelicBonus, float TotalBonus,float Critical)
 {
-	AGunBase* Gun = Cast<AGunBase>(ChildActor);
-	// 성유물 로 인한 공격력 증가 , 크리티컬 도 포함
-	Gun->AddDamage(AddRelicBonus,TotalBonus,Critical);
+	if (ChildActor)
+	{
+		AGunBase* Gun = Cast<AGunBase>(ChildActor);
+		// 성유물 로 인한 공격력 증가 , 크리티컬 도 포함
+		Gun->AddDamage(AddRelicBonus,TotalBonus,Critical);
+	}
 }
 
 void AAPlayer::AddExp(int32 Add_Exp)
@@ -262,6 +264,19 @@ void AAPlayer::DegreaseSkiilCoolTiem(float SkillCoolTime)
 		USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance);
 		Skill->SkiilDegreaseTime(SkillCoolTime);
 	}
+}
+
+float AAPlayer::TakeDamage(float DamageAmount
+	, struct FDamageEvent const& DamageEvent
+	,class AController* EventInstigator
+	,AActor* DamageCauser)
+{
+	//
+	return Super::TakeDamage(
+		DamageAmount
+		,DamageEvent
+		,EventInstigator
+		,DamageCauser);
 }
 
 
