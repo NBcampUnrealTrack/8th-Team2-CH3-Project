@@ -168,4 +168,9 @@ public:
 		,class AController* EventInstigator
 		,AActor* DamageCauser)
 	override;
+	
+	void OnDeath();
+	
+	
+	
 };

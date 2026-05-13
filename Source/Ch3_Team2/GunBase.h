@@ -65,4 +65,6 @@ public:
 	// 파츠 정보 초기화 
 	void InitializeParts();
 	
+	virtual void BeginPlay() override;
+	
 };
