@@ -216,17 +216,11 @@ void AAPlayer::AddPlayerSpeed(float Add_Speed)
 {
 	MoveSpeed += Add_Speed;
 }
-void AAPlayer::DropAddDamageRelic(float AddDamage)
+void AAPlayer::TotalDamageUpGrade(float AddRelicBonus, float TotalBonus)
 {
 	AGunBase* Gun = Cast<AGunBase>(ChildActor);
 	// 성유물 로 인한 공격력 증가 
-	Gun->AddRelicDamage(AddDamage);
-}
-void AAPlayer::TotalDamageUpGrade(float AddDamage)
-{
-	AGunBase* Gun = Cast<AGunBase>(ChildActor);
-	// 성유물 로 인한 공격력 증가 
-	Gun->AddTotalDamage(AddDamage);
+	Gun->AddDamage(AddRelicBonus,TotalBonus);
 }
 
 void AAPlayer::AddExp(int32 Add_Exp)

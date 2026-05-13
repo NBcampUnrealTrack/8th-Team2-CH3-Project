@@ -138,9 +138,7 @@ public:
 	// 이동속도 증가 
 	void AddPlayerSpeed(float Add_Speed);
 	// 공격력 증가 성유물 획득 및 무기에 적용
-	void DropAddDamageRelic(float AddDamage);
-	// 전체 공격력 증가 
-	void TotalDamageUpGrade(float AddDamage);
+	void TotalDamageUpGrade(float AddRelicBonus, float TotalBonus);
 	
 	// return 값
 	// 체력 return 
