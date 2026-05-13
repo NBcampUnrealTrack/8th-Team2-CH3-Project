@@ -194,10 +194,10 @@ void AGunBase::InitializeParts()
 	Scope.Value = 0;  
 	Scope.Parts = EPartsName::eScope;
 	
-	
 	Handle.Name = "Handle";
 	Handle.Level = 1;
 	Handle.Value = 0;
 	Handle.Parts = EPartsName::eHandle;
 	
 }
+
