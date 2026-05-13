@@ -29,6 +29,10 @@
 		{
 			"Name": "SlateModelViewViewModel",
 			"Enabled": true
+		},
+		{
+			"Name": "ModelViewViewModelPreview",
+			"Enabled": true
 		}
 	]
 }

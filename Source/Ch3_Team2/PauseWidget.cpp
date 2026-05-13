@@ -1,5 +1,7 @@
 #include "PauseWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Data/LevelFlowSubsystem.h"
+#include "Components/Button.h"
 
 UPauseWidget::UPauseWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -38,4 +40,25 @@ TOptional<FUIInputConfig> UPauseWidget::GetDesiredInputConfig() const
 {
 	// 캐릭터 조작을 막고 마우스/키보드 입력을 UI에만 집중
 	return FUIInputConfig(ECommonInputMode::All, EMouseCaptureMode::NoCapture);
+}
+
+void UPauseWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (Btn_GoToMainMenu)
+	{
+		Btn_GoToMainMenu->OnClicked.AddDynamic(this, &UPauseWidget::OnMainMenuButtonClicked);
+	}
+}
+
+void UPauseWidget::OnMainMenuButtonClicked()
+{
+	if (UGameInstance* GI = UGameplayStatics::GetGameInstance(this))
+	{
+		if (ULevelFlowSubsystem* FlowSystem = GI->GetSubsystem<ULevelFlowSubsystem>())
+		{
+			FlowSystem->TravelToLevelByIndex(0); 
+		}
+	}
 }

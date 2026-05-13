@@ -6,6 +6,8 @@
 #include "CommonActivatableWidget.h"
 #include "PauseWidget.generated.h"
 
+class UButton;
+
 UCLASS()
 class CH3_TEAM2_API UPauseWidget : public UCommonActivatableWidget
 {
@@ -23,4 +25,12 @@ protected:
 
 	// 입력 모드 설정 (UI 포커스)
 	virtual TOptional<FUIInputConfig> GetDesiredInputConfig() const override;
+	
+	void NativeConstruct();
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* Btn_GoToMainMenu;
+	
+	UFUNCTION()
+	void OnMainMenuButtonClicked();
 };
