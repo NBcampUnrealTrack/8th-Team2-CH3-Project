@@ -271,14 +271,33 @@ float AAPlayer::TakeDamage(float DamageAmount
 	,class AController* EventInstigator
 	,AActor* DamageCauser)
 {
-	//
-	return Super::TakeDamage(
-		DamageAmount
-		,DamageEvent
-		,EventInstigator
-		,DamageCauser);
+	CurrentHp -= FMath::RoundToInt32(DamageAmount);
+	CurrentHp = FMath::Clamp(CurrentHp, 0.f, MaxHp);
+	
+	UE_LOG(LogTemp, Warning,
+		TEXT("Player Hit! Damage: %f CurrentHP: %d"),
+		DamageAmount,
+		CurrentHp);
+	/*
+	 Super::TakeDamage(
+		DamageAmount //  데미지
+		,DamageEvent // 이벤트
+		,EventInstigator // Player를 공격한 actor ( 몬스터 ) controller 
+		,DamageCauser); // 때린 Actor 데이터 
+	 */
+	
+	if (CurrentHp <= 0.f)
+	{
+		OnDeath();
+	}
+
+	return DamageAmount;
 }
 
-
-
+void AAPlayer::OnDeath()
+{
+	// 사망 로그 호출
+	UE_LOG(LogTemp, Error, TEXT("Player Dead"));
+	
+}
 

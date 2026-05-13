@@ -65,5 +65,6 @@ public:
 	// 파츠 정보 초기화 
 	void InitializeParts();
 	
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void BeginPlay() override;
+	
 };

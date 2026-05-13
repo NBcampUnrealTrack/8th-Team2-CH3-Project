@@ -40,11 +40,7 @@ void AGunBase::Reload_End()
 
 AGunBase::AGunBase()
 {
-	// 파츠 초기화
-	InitializeParts();
 	
-	// 무기 스텟 초기화 
-	Stats_Initialize();
 }
 
 void AGunBase::Stats_Initialize()
@@ -199,5 +195,15 @@ void AGunBase::InitializeParts()
 	Handle.Value = 0;
 	Handle.Parts = EPartsName::eHandle;
 	
+}
+
+void AGunBase::BeginPlay()
+{
+	// 파츠 초기화
+	InitializeParts();
+	
+	// 무기 스텟 초기화 
+	Stats_Initialize();
+	Super::BeginPlay();
 }
 
