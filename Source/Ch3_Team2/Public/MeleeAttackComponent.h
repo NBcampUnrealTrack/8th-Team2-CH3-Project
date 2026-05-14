@@ -18,4 +18,8 @@ protected:
 	virtual void BeginPlay() override;
 	UPROPERTY()
 	class UMonsterStatComponent* CachedStatComp;
+
+	float Damage;
+	float Range;
+	float AttackRadius;
 };

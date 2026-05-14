@@ -36,9 +36,9 @@ void UMeleeAttackComponent::CheckHit()
 	{
 		return;
 	}
-	float Damage = CachedStatComp->GetAttackDamage();
-	float Range = CachedStatComp->GetAttackRange();
-	float AttackRadius = 25.0f;
+	Damage = CachedStatComp->GetAttackDamage();
+	Range = CachedStatComp->GetAttackRange();
+	AttackRadius = 25.0f;
 	
 	FVector Start = Owner->GetActorLocation();
 	FVector Forward = Owner->GetActorForwardVector();

@@ -29,7 +29,7 @@ void UMonsterStatComponent::TakeDamage(AActor* DamagedActor, float Damage, const
 	float FinalDamage = FMath::Min(Damage,Stats.CurrentHP);
 	Stats.CurrentHP -= FinalDamage; 
 	
-	if (Stats.CurrentHP == 0)
+	if (Stats.CurrentHP <= 0)
 	{
 		bIsDead= true;
 		OnDeath.Broadcast(InInstigater);
