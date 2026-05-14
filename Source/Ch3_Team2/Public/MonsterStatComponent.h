@@ -24,8 +24,9 @@ public:
 	void TakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InInstigater, AActor* Causer);
 	
 	
-	float GetAttackRange() const;
-	float GetAttackRate() const;
+	FORCEINLINE float GetAttackRange() const {return Stats.AttackRange;}
+	FORCEINLINE float GetAttackRate() const {return Stats.AttackRate;}
+	FORCEINLINE float GetAttackDamage() const {return Stats.AttackDamage;}
 	bool IsDead() const;
 
 	UPROPERTY(BlueprintAssignable)
