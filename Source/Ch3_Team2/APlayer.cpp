@@ -86,7 +86,13 @@ void AAPlayer::BeginPlay()
 	
 	// NewObject<타입>(Outer, Class)
 	// Skil component Object화 
-	SkillInstance = NewObject<UObject>(this, SkillComp);
+	if (SkillComp)
+		SkillInstance = NewObject<UObject>(this, SkillComp);
+	else
+	{
+		UE_LOG(LogTemp,Warning,TEXT("not Skill"));
+	}
+	//
 
 	// 만약 인터페이스나 특정 클래스로 형변환해서 쓰고 싶다면:
 	// USkillBase* Skill = Cast<USkillBase>(SkillInstance);
@@ -125,18 +131,12 @@ void AAPlayer::Reload(const FInputActionValue& Value)
 }
 void AAPlayer::SkillInputKey(const FInputActionValue& Value)
 {
-	if (SkillInstance)
-	{
-		USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance);
-		if (!Skill->IsRegistered())
-		{
-			Skill->RegisterComponent();
-		}
-		else
-		{
-			Skill->ActiveCheck();
-		}
-	}
+	
+	USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance);
+	if (!Skill->IsRegistered())
+		Skill->RegisterComponent();
+	
+	Skill->ActiveSkill();
 }
 void AAPlayer::NotifyControllerChanged()
 {
@@ -240,7 +240,7 @@ void AAPlayer::DegreaseSkillCoolTime(float SkillCoolTime)
 	if (SkillInstance)
 	{
 		USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance);
-		Skill->SkiilDegreaseTime(SkillCoolTime);
+		Skill->DecreaseTimeSkill(SkillCoolTime);
 	}
 }
 

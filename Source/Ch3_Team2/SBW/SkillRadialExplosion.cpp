@@ -5,7 +5,7 @@
 #include "Engine/OverlapResult.h"
 #include "public/MonsterBase.h"
 
-void USkillRadialExplosion::SkillActive()
+void USkillRadialExplosion::ActiveSkill()
 {
 	AActor* Owner = GetOwner();
 	if (Owner && GetWorld())
@@ -54,6 +54,6 @@ void USkillRadialExplosion::SkillActive()
 			}
 		}
 	}
-	Super::SkillActive();
+	Super::ActiveSkill();
 	
 }

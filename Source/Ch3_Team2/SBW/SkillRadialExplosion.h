@@ -23,5 +23,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category= "SkillStat")
 	float KnockbackStrength = 600.0f;// 밀려나는 힘 (수치 조절 필요)
 	
-	virtual void SkillActive()override;
+	virtual void ActiveSkill()override;
 };
