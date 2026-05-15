@@ -17,6 +17,7 @@ void AMonsterBase::BeginPlay()
 	{
 		StatComp->OnDeath.AddUniqueDynamic(this,&AMonsterBase::HandleDeath);
 	}
+	
 }
 
 FOnReadyToReturn& AMonsterBase::GetOnReadyToReturn()
