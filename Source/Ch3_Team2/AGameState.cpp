@@ -62,7 +62,9 @@ void AAGameState::OnStageTimerExpired()
 		LevelFlow->TravelToLevelByIndex(0);
 	}
 	else
+	{
 		LevelFlow->TravelToNextLevel();
+	}
 }
 
 void AAGameState::EndPlay(const EEndPlayReason::Type EndPlayReason)
