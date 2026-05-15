@@ -39,8 +39,13 @@ void UBattleSubsystem::ExecuteDamageCalculation(AActor* Attacker, AActor* Victim
 
 float UBattleSubsystem::CalculateFinalDamage(AActor* Attacker, float BaseDamage, bool bIsCritical, float CritMultiplier)
 {
+	if (!Attacker || !bIsCritical)
+    {
+    	return BaseDamage;
+    }
+
 	float CalculatedDamage = BaseDamage;
-	if (bIsCritical && Attacker->ActorHasTag(FName("Player")))
+	if (Attacker->ActorHasTag(FName("Player")))
 	{
 		CalculatedDamage *= CritMultiplier;
 	}
