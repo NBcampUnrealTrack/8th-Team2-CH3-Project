@@ -20,6 +20,7 @@ class CH3_TEAM2_API AAGameState : public AGameState
 	
 	protected:
 		virtual void BeginPlay() override;
+		virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	private:
 		float RemainingTime = 0.f;
