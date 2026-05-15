@@ -14,7 +14,11 @@ void AAGameState::BeginPlay()
 	
 	// 메인 메뉴일 경우 시간 측정 X
 	ULevelFlowSubsystem* LevelFlow = GetGameInstance()->GetSubsystem<ULevelFlowSubsystem>();
-	if (!LevelFlow || LevelFlow->GetCurrentLevelIndex() == 0) return;
+	if (!LevelFlow || LevelFlow->GetCurrentLevelIndex() == 0)
+	{
+		SetActorTickEnabled(false);
+		return;
+	}
 	
 	RemainingTime = StageDuration;
 
@@ -31,10 +35,6 @@ void AAGameState::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	// 메인 메뉴일 경우 시간 측정 X
-	ULevelFlowSubsystem* LevelFlow = GetGameInstance()->GetSubsystem<ULevelFlowSubsystem>();
-	if (!LevelFlow || LevelFlow->GetCurrentLevelIndex() == 0) return;
-
 	RemainingTime = FMath::Max(0.f, RemainingTime - DeltaTime);
 
 	if (GEngine)
@@ -45,11 +45,13 @@ void AAGameState::Tick(float DeltaTime)
 void AAGameState::OnStageTimerExpired()
 {
 	ULevelFlowSubsystem* LevelFlow = GetGameInstance()->GetSubsystem<ULevelFlowSubsystem>();
-	if (!LevelFlow) return;
+	if (!LevelFlow)
+	{
+		return;
+	}
 
 	// 마지막 스테이지 여부 체크
-	const bool bIsLastStage = LevelFlow->IsLastLevel();
-	if (bIsLastStage)
+	if (LevelFlow->IsLastLevel())
 	{
 		UBattleSubsystem* BattleSubsystem = GetGameInstance()->GetSubsystem<UBattleSubsystem>();
 		if (!BattleSubsystem) return;
@@ -61,4 +63,14 @@ void AAGameState::OnStageTimerExpired()
 	}
 	else
 		LevelFlow->TravelToNextLevel();
+}
+
+void AAGameState::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	
+	if (StageTimerHandle.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
+	}
 }
