@@ -1,4 +1,7 @@
 #include "Data/SaveSubsystem.h"
+
+#include "AudioMixerDevice.h"
+#include "MasterSubsystem.h"
 #include "Data/SaveData.h"
 #include "Battle/BattleSubsystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -8,23 +11,24 @@ const FString USaveSubsystem::SlotName = TEXT("MainSave");
 void USaveSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     // 순서 꼬임 방지
-    Collection.InitializeDependency<UBattleSubsystem>();
+    Collection.InitializeDependency<UMasterSubsystem>();
 
     Super::Initialize(Collection);
     
     LoadGame();
     
-    if (UBattleSubsystem* BattleSubsystem = GetGameInstance()->GetSubsystem<UBattleSubsystem>())
+    MasterSubsystem = GetGameInstance()->GetSubsystem<UMasterSubsystem>();
+    if (MasterSubsystem)
     {
-        BattleSubsystem->OnBattleResult.AddDynamic(this, &USaveSubsystem::OnBattleResultReceived);
+        MasterSubsystem->OnBattleResult.AddDynamic(this, &USaveSubsystem::OnBattleResultReceived);
     }
 }
 
 void USaveSubsystem::Deinitialize()
 {
-    if (UBattleSubsystem* BattleSubsystem = GetGameInstance()->GetSubsystem<UBattleSubsystem>())
+    if (MasterSubsystem)
     {
-        BattleSubsystem->OnBattleResult.RemoveDynamic(this, &USaveSubsystem::OnBattleResultReceived);
+        MasterSubsystem->OnBattleResult.RemoveDynamic(this, &USaveSubsystem::OnBattleResultReceived);
     }
 
     // 부모를 마지막에 해제
@@ -61,7 +65,10 @@ void USaveSubsystem::AddCurrency(int32 Amount)
     }
     
     CurrentSave->Currency += Amount;
-    OnCurrencyChanged.Broadcast(CurrentSave->Currency, Amount);
+    if (MasterSubsystem)
+    {
+        MasterSubsystem->OnCurrencyChanged.Broadcast(CurrentSave->Currency, Amount);
+    }
 }
 
 int32 USaveSubsystem::GetCurrency() const
@@ -77,7 +84,10 @@ bool USaveSubsystem::TrySpendCurrency(int32 Amount)
     }
 
     CurrentSave->Currency -= Amount;
-    OnCurrencyChanged.Broadcast(CurrentSave->Currency, -Amount);
+    if (MasterSubsystem)
+    {
+        MasterSubsystem->OnCurrencyChanged.Broadcast(CurrentSave->Currency, Amount);
+    }
     return true;
 }
 
