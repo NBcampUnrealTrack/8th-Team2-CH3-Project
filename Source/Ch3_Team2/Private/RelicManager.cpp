@@ -1,5 +1,5 @@
 #include "RelicManager.h"
-#include "RelicEffectBase.h"
+#include "Ch3_Team2/RelicEffect/RelicEffectBase.h"
 #include "Ch3_Team2/APlayer.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -31,7 +31,7 @@ void ARelicManager::AddOwnedRelic(const FRelicData& NewRelic)
 	
 	if (Effect)
 	{
-		Effect->ApplyEffect(Player,NewRelic);
+		Effect->ApplyRelic(Player,NewRelic);
 	}
 }
 
@@ -84,10 +84,7 @@ void ARelicManager::BeginPlay()
 	RandomRelicOption.Empty();
 	AllRelics.Empty();
 
-	if (!RelicDataTable)
-	{
-		return;
-	}
+	if (!RelicDataTable) return;
 	
 	
 
@@ -138,10 +135,8 @@ void ARelicManager::RandomRelic()
 
 		FRelicData PickedRelic;
 
-		if (!GetRandomRelicByGrade(Grade, PickedRelic))
-		{
-			continue;
-		}
+		if (!GetRandomRelicByGrade(Grade, PickedRelic)) continue;
+		
 
 		bool bAlreadyInOption =
 			RandomRelicOption.ContainsByPredicate([&](const FRelicData& RelicData)
@@ -149,14 +144,12 @@ void ARelicManager::RandomRelic()
 				return RelicData.RelicId == PickedRelic.RelicId;
 			});
 		
-		if (PickedRelic.RelicId == 0) return;
+		if (!PickedRelic.RelicId) return;
 		
 		bool bIsBlocked = BlockedRelicIDs.Contains(PickedRelic.RelicId);
 
-		if (bAlreadyInOption || bIsBlocked)
-		{
-			continue;
-		}
+		if (bAlreadyInOption || bIsBlocked) continue;
+		
 
 		RandomRelicOption.Add(PickedRelic);
 	}
@@ -176,10 +169,8 @@ bool ARelicManager::GetRandomRelicByGrade(
 		}
 	}
 
-	if (Candidates.Num() == 0)
-	{
-		return false;
-	}
+	if (!Candidates.Num()) return false;
+	
 
 	int32 RandIndex =
 		FMath::RandRange(0, Candidates.Num() - 1);
