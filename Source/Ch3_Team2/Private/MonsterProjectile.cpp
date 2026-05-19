@@ -39,18 +39,22 @@ void AMonsterProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
 	UBattleSubsystem* BattleSubsystem = GetGameInstance() ? GetGameInstance()->GetSubsystem<UBattleSubsystem>() : nullptr;
-	if (!PlayerPawn || !BattleSubsystem) return;
-	
-	BattleSubsystem->ExecuteDamageCalculation(
+	if (!PlayerPawn || !BattleSubsystem)
+	{
+		return;
+	}
+	if (OtherActor == PlayerPawn)
+	{
+		BattleSubsystem->ExecuteDamageCalculation(
 		GetOwner(), 
 		PlayerPawn, 
 		Damage, 
 		false, 
 		1
-	);
+		);
+		DrawDebugSphere(GetWorld(),Hit.ImpactPoint,10.f,5,FColor::Green,false,3.f);
+	}
 	OnReadyToReturn.Broadcast(this);
-	
-	DrawDebugSphere(GetWorld(),Hit.ImpactPoint,10.f,5,FColor::Green,false,3.f);
 }
 
 void AMonsterProjectile::OnSpawnFromPool(const FTransform& Transform)
