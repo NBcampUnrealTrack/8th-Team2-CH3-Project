@@ -5,9 +5,9 @@
 #include "Battle/BattleSubsystem.h"
 #include "public/MonsterBase.h"
 
-bool AGunBase::CheckAmmo_Implementation()
+bool AGunBase::CheckAmmo()
 {
-	if (CanFire && ReloadingCheck == false)
+	if (CanFire && ReloadingCheck == false && CurrentAmmo > 0)
 	{
 		GetWorld()->GetTimerManager().SetTimer(
 			TimerFireDelay

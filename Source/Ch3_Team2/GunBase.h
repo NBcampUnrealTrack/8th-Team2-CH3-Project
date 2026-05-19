@@ -18,7 +18,6 @@ public:
 	void InitializeParts();
 	
 	// 블루프린트 위임
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	bool CheckAmmo();
 	
 	bool CheckReload();
@@ -27,7 +26,7 @@ public:
 	void Reloading();
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void Fire_Gun(FVector Location, FVector Direction);
+	virtual void Fire_Gun(FVector Location, FVector Direction);
 	
 	// RPM ( 연사 속도 )시간 끝내는함수 
 	void HandleFireDelay();

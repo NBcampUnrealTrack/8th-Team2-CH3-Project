@@ -28,7 +28,7 @@ AAPlayer::AAPlayer()
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
-	
+	GetMesh()->AddRelativeLocation(FVector(10.0f,0,0));
 	GetMesh()->SetupAttachment(FirstPersonCameraComponent);
 	ChildActor = CreateDefaultSubobject<UChildActorComponent>(TEXT("child"));
 	ChildActor->SetupAttachment(GetMesh());
@@ -193,7 +193,7 @@ void AAPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &AAPlayer::Reload);
 		
 		// Shoot Actiiving
-		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AAPlayer::Shooting);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &AAPlayer::Shooting);
 		
 	}
 }

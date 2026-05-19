@@ -13,5 +13,4 @@ class CH3_TEAM2_API AGunPistol : public AGunBase
 	GENERATED_BODY()
 	
 public:
-	virtual void BeginPlay() override;
 };
