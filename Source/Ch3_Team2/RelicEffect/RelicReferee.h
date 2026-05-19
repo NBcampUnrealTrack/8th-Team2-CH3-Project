@@ -14,4 +14,18 @@ class CH3_TEAM2_API URelicReferee : public URelicEffectBase
 {
 	GENERATED_BODY()
 	
+public:
+	
+	virtual void ApplyRelic(UObject* WorldContextObject, const FRelicData& NewRelic) override;
+	void SpawnRefereeEffect() const;
+	
+	UPROPERTY(EditAnywhere, Category = "Referee Blueprint")
+	TSubclassOf<AActor> RefereeBP;
+	
+	
+	
+protected:
+	
+	FTimerHandle RelicRefereeTimerHandle;
+	
 };
