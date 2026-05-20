@@ -19,9 +19,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category= "SkillStat")
 	float DetectionRadius = 1000.0f; // 인식 범위
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category= "SkillStat")
-	float LaunchZDirection = 0.2f; // 넉백시 살짝 밀려나는 z값
+	float LaunchZDirection = 1.2f; // 넉백시 살짝 밀려나는 z값
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category= "SkillStat")
-	float KnockbackStrength = 600.0f;// 밀려나는 힘 (수치 조절 필요)
+	float KnockbackStrength = 1500.0f;// 밀려나는 힘 (수치 조절 필요)
 	
 	virtual void ActiveSkill()override;
 };

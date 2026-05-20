@@ -30,6 +30,11 @@ public:
 	void BattleIn(const FHitResult& HitResult);
 	void SelectParts(EPartsName parts);
 	
+	int32 GetMaxAmmoStat(){return MaxAmmo;}
+	float GetReloadStat(){return ReloadTime;}
+	void AddMaxAmmoStat(float AddAmmo){MaxAmmo +=AddAmmo;}
+	void AddReloadStat(float AddReload);
+	
 	// Weapon Parts
 	FGunParts Bullet;
 	FGunParts Magazine;

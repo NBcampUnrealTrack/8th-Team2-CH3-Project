@@ -163,6 +163,14 @@ void AGunBase::SelectParts(EPartsName parts)
 	}
 }
 
+void AGunBase::AddReloadStat(float AddReload)
+{
+	if (ReloadTime + AddReload >= 0.1f)
+	{
+		ReloadTime += AddReload;
+	}
+}
+
 void AGunBase::InitializeParts()
 {
 	Bullet.Name = "Bullet";

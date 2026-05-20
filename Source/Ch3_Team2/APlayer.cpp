@@ -231,7 +231,8 @@ void AAPlayer::AddMaxHp(int32 Add_Max_Hp)
 }
 void AAPlayer::AddPlayerSpeed(float Add_Speed)
 {
-	MoveSpeed += Add_Speed;
+	if (MoveSpeed - Add_Speed > 0 )
+		MoveSpeed += Add_Speed;
 }
 void AAPlayer::TotalDamageUpGrade(float AddRelicBonus, float TotalBonus,float Critical)
 {
