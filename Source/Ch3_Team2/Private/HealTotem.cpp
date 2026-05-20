@@ -1,0 +1,76 @@
+#include "HealTotem.h"
+#include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/SceneComponent.h"
+#include "APlayer.h"
+
+AHealTotem::AHealTotem()
+{
+	PrimaryActorTick.bCanEverTick = false;
+
+	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("DummyRoot"));
+	RootComponent = RootComp;
+
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	MeshComp->SetupAttachment(RootComponent); // 이제 메시의 위치/크기를 맘대로 조절 가능!
+
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+	CollisionBox->SetupAttachment(RootComponent); // 메시가 커져도 콜리전은 영향을 안 받음!
+
+	CollisionBox->SetCollisionProfileName(TEXT("Trigger"));
+}
+
+void AHealTotem::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AHealTotem::OnOverlapBegin);
+	CollisionBox->OnComponentEndOverlap.AddDynamic(this, &AHealTotem::OnOverlapEnd);
+}
+
+void AHealTotem::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		AAPlayer* Player = Cast<AAPlayer>(OtherActor);
+		if (Player)
+		{
+			// 플레이어 범위 안에 들어왔으므로, 플레이어에게 내 주소(this)를 전달해 기억하게 함
+			Player->SetCurrentStructure(this);
+			UE_LOG(LogTemp, Log, TEXT("[HealTotem] 플레이어가 치유 범위에 들어옴"));
+		}
+	}
+}
+
+void AHealTotem::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex)
+{
+	if (OtherActor)
+	{
+		AAPlayer* Player = Cast<AAPlayer>(OtherActor);
+		if (Player && Player->GetCurrentStructure() == this)
+		{
+			// 플레이어가 범위를 나갔으므로 대상을 비워줌
+			Player->SetCurrentStructure(nullptr);
+			UE_LOG(LogTemp, Log, TEXT("[HealTotem] 플레이어가 치유 범위를 벗어남"));
+		}
+	}
+}
+
+void AHealTotem::Interact(AActor* Interactor)
+{
+	if (!Interactor) return;
+
+	AAPlayer* Player = Cast<AAPlayer>(Interactor);
+	if (Player)
+	{
+		// 핵심: 플레이어가 가지고 있는 직접적인 회복 함수(AddCurrentHp) 호출!
+		Player->AddCurrentHp(HealAmount);
+        
+		UE_LOG(LogTemp, Warning, TEXT("[HealTotem] 상호작용 완료! 플레이어에게 %d 힐 전송 후 토템 파괴"), HealAmount);
+        
+		// 사용된 토템은 월드에서 삭제
+		Destroy();
+	}
+}

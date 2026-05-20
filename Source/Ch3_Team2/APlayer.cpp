@@ -18,7 +18,7 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "HealTotem.h"
 
 // Sets default values
 AAPlayer::AAPlayer()
@@ -43,6 +43,8 @@ AAPlayer::AAPlayer()
 	DropExpComp->SetupAttachment(MagnetComp);
 	
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+	
+	CurrentTargetStructure = nullptr;
 }
 
 void AAPlayer::BeginPlay()
@@ -173,6 +175,26 @@ void AAPlayer::Shooting(const FInputActionValue& Value)
 		}
 	}
 }
+
+void AAPlayer::Interact(const FInputActionValue& Value)
+{
+	// 오버랩을 통해 주소가 저장된 토템이 내 주변에 존재하는지 검사
+	if (CurrentTargetStructure)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Player] %s 토템과 상호작용을 시작합니다."), *CurrentTargetStructure->GetName());
+
+		// 토템에게 "나(this)랑 상호작용 하자"며 명령 전달
+		CurrentTargetStructure->Interact(this);
+        
+		// 상호작용이 끝나 토템이 지워질 것이므로 변수를 안전하게 비워줌
+		CurrentTargetStructure = nullptr;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Player] 주변에 상호작용 가능한 토템이 없습니다."));
+	}
+}
+
 void AAPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -242,21 +264,27 @@ void AAPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		// Shoot Actiiving
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &AAPlayer::Shooting);
 		
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AAPlayer::Interact);
+		
 	}
 }
-
 
 void AAPlayer::AddCurrentHp(int32 Add_Hp)
 {
-	if (CurrentHp + Add_Hp <= MaxHp)
+	// Test Log
+	UE_LOG(LogTemp, Warning, TEXT("Current HP: %d , Add HP: %d"),CurrentHp, Add_Hp);
+	if (CurrentHp + Add_Hp >= MaxHp)
 	{
-		CurrentHp += Add_Hp;
+		CurrentHp = MaxHp;
+		UE_LOG(LogTemp, Warning, TEXT("Current HP: %d"),CurrentHp);
 	}
 	else
 	{
-		CurrentHp = MaxHp;
+		CurrentHp += Add_Hp;
+		UE_LOG(LogTemp, Warning, TEXT("Current HP: %d"),CurrentHp);
 	}
 }
+
 void AAPlayer::AddMaxHp(int32 Add_Max_Hp)
 {
 	MaxHp += Add_Max_Hp;
