@@ -38,76 +38,25 @@ void ARelicManager::AddOwnedRelic(const FRelicData& NewRelic)
 void ARelicManager::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//테스트 키 바인딩
-	APlayerController* PC =
-		GetWorld()->GetFirstPlayerController();
-
-	if (!PC) return;
-
-	EnableInput(PC);
-
-	UEnhancedInputLocalPlayerSubsystem* Subsystem =
-		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-			PC->GetLocalPlayer());
-
-	if (Subsystem)
-	{
-		Subsystem->AddMappingContext(IMC_Relic, 0);
-	}
-
-	UEnhancedInputComponent* EIC =
-		Cast<UEnhancedInputComponent>(InputComponent);
-
-	if (EIC)
-	{
-		EIC->BindAction(
-			IA_Relic1,
-			ETriggerEvent::Started,
-			this,
-			&ARelicManager::SelectRelic1);
-
-		EIC->BindAction(
-			IA_Relic2,
-			ETriggerEvent::Started,
-			this,
-			&ARelicManager::SelectRelic2);
-
-		EIC->BindAction(
-			IA_Relic3,
-			ETriggerEvent::Started,
-			this,
-			&ARelicManager::SelectRelic3);
-	}
-	
 	
 	RandomRelicOption.Empty();
 	AllRelics.Empty();
 
 	if (!RelicDataTable) return;
 	
+	TArray<FRelicData*> AllRelicRows;
 	
-
-	TArray<FRelicData*> RelicData;
-	RelicDataTable->GetAllRows(TEXT("Relic"), RelicData);
-
-	for (FRelicData* Relic : RelicData)
+	FString ContextString(TEXT("Relic Data Context"));
+	
+	RelicDataTable->GetAllRows<FRelicData>(ContextString, AllRelicRows);
+	for (FRelicData* RelicPtr : AllRelicRows)
 	{
-		if (!Relic) continue;
-
-		AllRelics.Add(*Relic);
-	}
-	
-	RandomRelic();
-	
-	for (FRelicData Relic : RandomRelicOption)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			5.f,
-			FColor::Red,
-			FString::Printf(TEXT("Relic : %s"), *Relic.RelicName.ToString())
-			);
+		if (!RelicPtr)
+		{
+		    continue;
+		}
+		
+		AllRelics.Add(*RelicPtr);
 	}
 }
 
@@ -180,20 +129,12 @@ bool ARelicManager::GetRandomRelicByGrade(
 	return true;
 }
 
-void ARelicManager::SelectRelic1()
+void ARelicManager::OnEliteMonsterDead()
 {
-	if (RandomRelicOption.Num() <= 0) return;
-	AddOwnedRelic(RandomRelicOption[0]);
-}
-
-void ARelicManager::SelectRelic2()
-{
-	if (RandomRelicOption.Num() <= 0) return;
-	AddOwnedRelic(RandomRelicOption[1]);
-}
-
-void ARelicManager::SelectRelic3()
-{
-	if (RandomRelicOption.Num() <= 0) return;
-	AddOwnedRelic(RandomRelicOption[2]);
+	RandomRelic();
+	
+	if (OnRelicRewardGenerated.IsBound())
+	{
+		OnRelicRewardGenerated.Broadcast(RandomRelicOption);
+	}
 }
