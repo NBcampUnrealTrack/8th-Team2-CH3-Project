@@ -93,6 +93,21 @@ void AAPlayer::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+		
+		// [수정] 유저가 마우스를 움직이면, 현재 컨트롤러가 바라보는 실제 시선을 
+		// 복구 타겟으로 실시간 갱신해줍니다. 
+		// 이렇게 하면 복구 로직이 유저의 마우스 조작을 방해하며 강제로 끌고 가지 않습니다.
+		if (bIsRecoveringRecoil)
+		{
+			if (APlayerController* PC = Cast<APlayerController>(GetController()))
+			{
+				// 현재 마우스 입력이 반영된 최종 회전값을 타겟으로 동기화
+				UpRecoilTargetRotation = PC->GetControlRotation();
+             
+				// 만약 마우스를 아래로 크게 내려서 이미 원래 쐈던 위치보다 더 내려갔다면 복구를 종료합니다.
+				bIsRecoveringRecoil = false;
+			}
+		}
 	}
 }
 void AAPlayer::Reload(const FInputActionValue& Value)
@@ -134,17 +149,24 @@ void AAPlayer::Shooting(const FInputActionValue& Value)
 					// 3. 몽타주를 재생합니다. (인자값: 몽타주에셋, 재생속도배율)
 					AnimInstance->Montage_Play(ShootMontage, 1.0f);
 					Gun->Fire_Gun(CameraLocation,CameraForward);
-					// 카메라 반동
+					// 2. 무기로부터 '파츠 스탯이 적용된 최종 반동 값'을 전달받음
+					float FinalRecoilPitch = Gun->GetCurrentRecoilPitch();
+                
+					// 3. 카메라 반동 제어 처리
 					if (APlayerController* PC = Cast<APlayerController>(GetController()))
 					{
-						// 1. 총을 쏘기 직전, 현재 정상 조준선을 목표(복구 지점)로 저장합니다.
+						// [수정] 1. 총을 쏘기 직전, 복구해야 할 '원래 조준선 위치'를 저장합니다.
+						UpRecoilTargetRotation = PC->GetControlRotation();
+						
 						TargetRotation = PC->GetControlRotation();
 						
-						// 2. 현재 시선을 Pitch만큼 강제로 위로 튕깁니다. (-값이 위 방향)
 						FRotator RecoilRot = TargetRotation;
-						RecoilRot.Pitch += Pitch;
-						
+						// 무기가 넘겨준 최종 반동 값을 더해줌
+						RecoilRot.Pitch += FinalRecoilPitch; 
 						PC->SetControlRotation(RecoilRot);
+						
+						// 3. 반동 복구 로직을 활성화합니다.
+						bIsRecoveringRecoil = true;
 					}
 				}
 			}
@@ -154,6 +176,26 @@ void AAPlayer::Shooting(const FInputActionValue& Value)
 void AAPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	// 반동 복구 상태일 때만 작동
+	if (bIsRecoveringRecoil)
+	{
+		if (APlayerController* PC = Cast<APlayerController>(GetController()))
+		{
+			FRotator CurrentRotation = PC->GetControlRotation();
+
+			// RInterpTo를 사용해 현재 회전값에서 목표 회전값(원래 쐈던 곳)으로 부드럽게 이동합니다.
+			FRotator NewRotation = FMath::RInterpTo(CurrentRotation, UpRecoilTargetRotation, DeltaTime, RecoilRecoverySpeed);
+            
+			PC->SetControlRotation(NewRotation);
+
+			// 현재 회전값과 목표 회전값의 차이가 거의 없다면 복구를 종료합니다 (에러 방지 및 최적화)
+			if (FMath::IsNearlyEqual(CurrentRotation.Pitch, UpRecoilTargetRotation.Pitch, 0.05f))
+			{
+				bIsRecoveringRecoil = false;
+			}
+		}
+	}
 
 }
 void AAPlayer::SkillInputKey(const FInputActionValue& Value)

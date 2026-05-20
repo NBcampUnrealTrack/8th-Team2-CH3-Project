@@ -219,6 +219,14 @@ void AGunBase::InitializeParts()
 	Handle.Parts = EPartsName::Handle;
 }
 
+float AGunBase::GetCurrentRecoilPitch() const
+{
+	// 핸들 파츠의 Value가 반동 감소율(예: 0.2 -> 20% 감소)이라면 아래와 같이 계산
+	// 초기 Value가 0이므로, (1.0f - Handle.Value) 형태로 보정합니다.
+	float RecoilModifier = FMath::Clamp(1.0f - Handle.Value, 0.1f, 1.0f);
+	return Recoil * RecoilModifier;
+}
+
 void AGunBase::BeginPlay()
 {
 	Super::BeginPlay();

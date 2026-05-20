@@ -67,8 +67,8 @@ protected:
 	bool CanFire = true;
 
 	// 반동
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
-	//FVector2D SpreadAngle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	float Recoil =1.5f;
 	
 	// 장전시간
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")

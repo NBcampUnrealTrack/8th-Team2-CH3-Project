@@ -58,6 +58,10 @@ public:
 	const float LevelUpScopeValue = 0.2f;
 	const float LevelUpHandleValue =0.2f;
 	
+	// [추가] 핸들 파츠(반동 감소) 스탯이 반영된 최종 반동 값을 반환하는 함수
+	UFUNCTION(BlueprintCallable, Category = "Weapon|Recoil")
+	float GetCurrentRecoilPitch() const;
+	
 protected:
 	virtual void BeginPlay() override;
 };

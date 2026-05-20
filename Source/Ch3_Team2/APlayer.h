@@ -143,6 +143,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player|Upgrade")
 	FGunParts GetCurrentWeaponPartsData(EPartsName PartsType);
 	
+	// 총을 쏘기 전, 원래 바라보고 있던 조준선 방향을 저장할 변수
+	FRotator UpRecoilTargetRotation;
+	
+	// 반동 복구가 활성화되었는지 여부
+	bool bIsRecoveringRecoil = false;
+
+	// 반동 복구 속도 (값이 클수록 빠르게 원래대로 돌아옵니다)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player|Recoil")
+	float RecoilRecoverySpeed = 5.0f;
+	
 	virtual float TakeDamage(
 		float DamageAmount
 		,struct FDamageEvent const& DamageEvent
