@@ -93,7 +93,10 @@ void ARelicManager::RandomRelic()
 				return RelicData.RelicId == PickedRelic.RelicId;
 			});
 		
-		if (!PickedRelic.RelicId) return;
+		if (!PickedRelic.RelicId)
+		{
+			return;
+		}
 		
 		bool bIsBlocked = BlockedRelicIDs.Contains(PickedRelic.RelicId);
 
