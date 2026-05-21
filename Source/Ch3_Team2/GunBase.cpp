@@ -4,10 +4,11 @@
 #include "GunBase.h"
 #include "Battle/BattleSubsystem.h"
 #include "public/MonsterBase.h"
+#include "DrawDebugHelpers.h"
 
-bool AGunBase::CheckAmmo_Implementation()
+bool AGunBase::CheckAmmo()
 {
-	if (CanFire)
+	if (CanFire && ReloadingCheck == false && CurrentAmmo > 0)
 	{
 		GetWorld()->GetTimerManager().SetTimer(
 			TimerFireDelay
@@ -22,55 +23,40 @@ bool AGunBase::CheckAmmo_Implementation()
 	}
 	return false;
 }
-void AGunBase::Reload_Implementation()
-{
-	// 애니메이션이 끝날 때 호출이 되어야 좋은함수
-	CurrentAmmo = MaxAmmo;
-	
-	GetWorld()->GetTimerManager().SetTimer(
-		TimeReloadDelay
-		,this
-		,&AGunBase::Reload_End
-		,ReloadTime
-		,false
-	);
-}
-
-void AGunBase::Reload_End()
-{
-	
-}
-
 AGunBase::AGunBase()
 {
 	
 }
-
-void AGunBase::Stats_Initialize()
+bool AGunBase::CheckReload()
 {
-	MaxAmmo = 12;
+	// 총알이 가득 차있을 떄 
+	if (CurrentAmmo < MaxAmmo && ReloadingCheck == false )
+	{
+		ReloadingCheck = true;
+		return true;
+	}
+	return false;
+}
+
+void AGunBase::Reloading()
+{
+	// 재장전 되었을 떄 
+	ReloadingCheck = false;
 	CurrentAmmo = MaxAmmo;
-	RoundsPerSecond = 1.f;
-	EffectiveRange = 1000.f;
+	UE_LOG(LogTemp, Log, TEXT("Reloading!!!!"));
 	
-	RelicBonus = 0;
-	BaseDamage = 25.f;
-	FinalDamage =RelicBonus + BaseDamage;
-	TotalBonus = 1.0f;
-	
-	CanFire = true;
-	ReloadTime = 1.2;
-	ReloadingCheck= true;
-	
-	CritMultiplier = 2.0f;
 }
 
 void AGunBase::Fire_Gun(FVector Location, FVector Direction)
 {
-	// 발사
-	CurrentAmmo -= 1;
 	// 1. 끝점 계산
-	FVector End = Location + (Direction * EffectiveRange);
+	//FVector End = Location + (Direction * EffectiveRange);
+	// 여기서 원래 똑바르던 Direction이 무작위로 튄 SpreadDirection으로 재탄생합니다.
+	FVector SpreadDirection = FMath::VRandCone(Direction, FMath::DegreesToRadians(SpreadAngleDegrees ));
+
+	// [단계 2] 최종 도착점(End) 계산
+	// 원래 Direction 대신, 탄퍼짐이 적용된 SpreadDirection을 사거리에 곱해 최종 목적지를 구합니다.
+	FVector End = Location + (SpreadDirection * EffectiveRange);
 
 	// 2. 파라미터 설정
 	FHitResult HitResult;
@@ -97,12 +83,13 @@ void AGunBase::Fire_Gun(FVector Location, FVector Direction)
 		false,              // 매 프레임마다 그릴지 여부 (고정된 라인은 false)
 		2.0f,               // 유지 시간 (초 단위, 블루프린트의 For Duration과 대응)
 		0,                  // 우선순위
-		1.0f		// 두께
+		0.1f  //두께
 	);
 
 	if (bHit)
 	{
 		BattleIn(HitResult);
+		DrawDebugSphere(GetWorld(),HitResult.ImpactPoint,10.f,5,FColor::Green,false,3.f);
 	}
 }
 
@@ -111,7 +98,10 @@ void AGunBase::BattleIn(const FHitResult& HitResult)
 	AMonsterBase* Monster = Cast<AMonsterBase>(HitResult.GetActor());
 	UBattleSubsystem* BattleSubsystem = GetGameInstance() ? GetGameInstance()->GetSubsystem<UBattleSubsystem>() : nullptr;
 
-	if (!Monster || !BattleSubsystem) return;
+	if (!Monster || !BattleSubsystem)
+	{
+		return;
+	}
 
 	// TODO: blsCritical 기능 추가
 	BattleSubsystem->ExecuteDamageCalculation(
@@ -144,60 +134,103 @@ void AGunBase::SelectParts(EPartsName parts)
 	switch (parts)
 	{
 	case EPartsName::Bullet:
-		if (Bullet.Level < 4)
+		if (Bullet.Level < MaxLevelParts)
 		{
-			Bullet.Value +=0.25;
-			Bullet.Level ++;
+			++Bullet.Level;
+			Bullet.Value += LevelUpDamageValue;
 		}
 		break;
 	case EPartsName::Scope:
-		if (Scope.Level < 4)
+		if (Scope.Level < MaxLevelParts)
 		{
-			Scope.Value +=0.20;
-			Scope.Level ++;
+			++Scope.Level;
+			SpreadAngleDegrees -= Scope.Value;
 		}
 		break;
-	case  EPartsName::Handle:
-		if (Handle.Level < 4)
+	case EPartsName::Handle:
+		if (Handle.Level < MaxLevelParts)
 		{
-			Handle.Value +=0.20;
-			Handle.Level ++;
+			++Handle.Level;
+			Recoil -= Handle.Value; 
 		}
 		break;
-	case  EPartsName::Magazine:
-		if (Magazine.Level < 4)
+	case EPartsName::Magazine:
+		if (Magazine.Level < MaxLevelParts)
 		{
-			Magazine.Value +=0.15;
-			Magazine.Level ++;
+			++Magazine.Level;
+			ReloadTime -= Magazine.Value;
 		}
 		break;
 	default:
+		{
+			
 		break;
+		}
 	}
 }
 
+FGunParts AGunBase::GetPartsData(EPartsName PartsType) const
+{
+	switch (PartsType)
+	{
+	case EPartsName::Bullet:
+		{
+			return Bullet;
+		}
+	case EPartsName::Magazine:
+		{
+			return Magazine;
+		}
+	case EPartsName::Scope:
+		{
+			return Scope;
+		}
+	case EPartsName::Handle:
+		{
+			return Handle;
+		}
+	default:                   
+		return FGunParts();
+	}
+}
+
+void AGunBase::AddReloadStat(float AddReload)
+{
+	if (ReloadTime + AddReload >= 0.1f)
+	{
+		ReloadTime += AddReload;
+	}
+}
 
 void AGunBase::InitializeParts()
 {
 	Bullet.Name = "Bullet";
 	Bullet.Level = 1;
-	Bullet.Value = 1.0f;
+	Bullet.Value = LevelUpDamageValue;
 	Bullet.Parts = EPartsName::Bullet;
 	
 	Magazine.Name = "Magazine";
 	Magazine.Level = 1;
-	Magazine.Value = 0;
+	Magazine.Value = ReloadTime*LevelUpReloadValue;
 	Magazine.Parts = EPartsName::Magazine;
 	
 	Scope.Name = "Scope";
 	Scope.Level = 1;  
-	Scope.Value = 0;  
+	Scope.Value = SpreadAngleDegrees*LevelUpScopeValue;  
 	Scope.Parts = EPartsName::Scope;
 	
 	Handle.Name = "Handle";
 	Handle.Level = 1;
-	Handle.Value = 0;
+	Handle.Value = Recoil* LevelUpHandleValue;
 	Handle.Parts = EPartsName::Handle;
+}
+
+float AGunBase::GetCurrentRecoilPitch() const
+{
+	// 핸들 파츠의 Value가 반동 감소율(예: 0.2 -> 20% 감소)이라면 아래와 같이 계산
+	// 초기 Value가 0이므로, (1.0f - Handle.Value) 형태로 보정합니다.
+	float RecoilModifier = FMath::Clamp(1.0f - Handle.Value, 0.1f, 1.0f);
+	return Recoil * RecoilModifier;
 }
 
 void AGunBase::BeginPlay()
@@ -205,5 +238,4 @@ void AGunBase::BeginPlay()
 	Super::BeginPlay();
 
 	InitializeParts();
-	Stats_Initialize();
 }

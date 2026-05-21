@@ -3,6 +3,8 @@
 
 #include "APlayer.h"
 
+#include <rapidjson/internal/ieee754.h>
+
 #include "SkillBaseComp.h"
 
 #include "Animation/AnimInstance.h"
@@ -14,9 +16,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "GunBase.h"
 #include "InputActionValue.h"
-#include "SkillBaseComp.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "HealTotem.h"
 
 // Sets default values
 AAPlayer::AAPlayer()
@@ -28,81 +30,65 @@ AAPlayer::AAPlayer()
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
-	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
-	Mesh1P->SetOnlyOwnerSee(true);
-	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
-	Mesh1P->bCastDynamicShadow = false;
-	Mesh1P->CastShadow = false;
-	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
-	
+	GetMesh()->AddRelativeLocation(FVector(10.0f,0,0));
+	GetMesh()->SetupAttachment(FirstPersonCameraComponent);
 	ChildActor = CreateDefaultSubobject<UChildActorComponent>(TEXT("child"));
-	ChildActor->SetupAttachment(Mesh1P);
+	ChildActor->SetupAttachment(GetMesh());
 	
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = false;
 	
 	MagnetComp = CreateDefaultSubobject<USphereComponent>(TEXT("MagnetComp"));
 	MagnetComp->SetupAttachment(RootComponent);
 	DropExpComp = CreateDefaultSubobject<USphereComponent>(TEXT("DropExpComp"));
 	DropExpComp->SetupAttachment(MagnetComp);
 	
-	GetCharacterMovement()->JumpZVelocity = 420.0f;
+	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 	
-}
-
-void AAPlayer::PlayerInit()
-{
-	// Attach Weapon
-	ChildActor->AttachToComponent(
-		Mesh1P,
-		FAttachmentTransformRules::SnapToTargetIncludingScale,
-		TEXT("GripPoint")
-	);
-}
-
-void AAPlayer::StatInitialization()
-{
-	MaxHp = 100;
-	CurrentHp = MaxHp;
 	
-	MoveSpeed = 600.0f;
-	JumpZVelocity = 420.0f;
 	
-	MagnetRadius = 1000.0f;
-	MagnetComp->SetSphereRadius(MagnetRadius);
-	
-	Exp = 0;
-	LevelUpExp = 200;
-	Level = 1;
+	CurrentTargetStructure = nullptr;
 }
 
 void AAPlayer::BeginPlay()
 {
+	
 	Super::BeginPlay();
-
-	PlayerInit();
 	
-    StatInitialization();
+	MagnetComp->SetSphereRadius(MagnetRadius);
+	GetCharacterMovement()->JumpZVelocity = JumpZVelocity;
 	
-	// NewObject<타입>(Outer, Class)
-	// Skil component Object화 
-	SkillInstance = NewObject<UObject>(this, SkillComp);
-
-	// 만약 인터페이스나 특정 클래스로 형변환해서 쓰고 싶다면:
-	// USkillBase* Skill = Cast<USkillBase>(SkillInstance);
+	PController = Cast<APlayerController>(GetController());
+	EquipedGun = Cast<AGunBase>(ChildActor->GetChildActor());
+	
+	if (ChildActor && GetMesh())
+	{
+		ChildActor->AttachToComponent(
+			GetMesh(),
+			FAttachmentTransformRules::SnapToTargetIncludingScale,
+			TEXT("GripPoint") // 사용할 소켓 이름
+		);
+	}
+	
+	if (SkillComp)
+	{
+		SkillInstance = NewObject<USkillBaseComp>(this, SkillComp);
+		if (USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance))
+		{
+			Skill->RegisterComponent();
+		}
+	}
 }
-
 void AAPlayer::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
-
+	
 	// 컨트롤로가 없으면 호출하지 않음.
 	if (Controller != nullptr)
 	{
 		// 입력방향으로 이동
-		AddMovementInput(GetActorForwardVector(), MovementVector.Y * MoveSpeed);
-		AddMovementInput(GetActorRightVector(), MovementVector.X * MoveSpeed);
+		AddMovementInput(GetActorForwardVector(), MovementVector.Y );
+		AddMovementInput(GetActorRightVector(), MovementVector.X );
 	}
 }
 void AAPlayer::Look(const FInputActionValue& Value)
@@ -112,30 +98,124 @@ void AAPlayer::Look(const FInputActionValue& Value)
 
 	if (Controller != nullptr)
 	{
-		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+		
+		if (PController && bIsRecoveringRecoil)
+		{
+			// 현재 마우스 입력이 반영된 최종 회전값을 타겟으로 동기화
+			UpRecoilTargetRotation = PController->GetControlRotation();
+             
+			// 만약 마우스를 아래로 크게 내려서 이미 원래 쐈던 위치보다 더 내려갔다면 복구를 종료합니다.
+			bIsRecoveringRecoil = false;
+		}
+	}
+}
+void AAPlayer::Reload(const FInputActionValue& Value)
+{
+	if (EquipedGun->CheckReload())
+	{
+		// 1. 현재 상속받아 사용 중인 기본 Mesh에서 애님 인스턴스를 추출합니다.
+		UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
+		// 2. 애님 인스턴스와 우리가 에디터에서 등록할 몽타주 에셋이 모두 안전하게 존재할 때만 실행합니다.
+		if (AnimInstance && ReloadMontage)
+		{
+			if (!AnimInstance->Montage_IsPlaying(ReloadMontage))
+			{
+				// 3. 몽타주를 재생합니다. (인자값: 몽타주에셋, 재생속도배율)
+				AnimInstance->Montage_Play(ReloadMontage, EquipedGun->GetReloadSpeed());
+			}
+		}
+	}
+}
+void AAPlayer::Shooting(const FInputActionValue& Value)
+{
+	if (EquipedGun->CheckAmmo())
+	{
+		UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
+		if (AnimInstance && ShootMontage)
+		{
+			if (!AnimInstance->Montage_IsPlaying(ShootMontage))
+			{
+				// 2. [블루프린트 완벽 재현] 카메라의 위치와 정면 방향 벡터를 구합니다.
+				FVector CameraLocation = FirstPersonCameraComponent->GetComponentLocation(); // Get World Location 대응
+				FVector CameraForward  = FirstPersonCameraComponent->GetForwardVector();     // Get Forward Vector 대응
+				// 3. 몽타주를 재생합니다. (인자값: 몽타주에셋, 재생속도배율)
+				AnimInstance->Montage_Play(ShootMontage, 1.0f);
+				EquipedGun->Fire_Gun(CameraLocation,CameraForward);
+				// 2. 무기로부터 '파츠 스탯이 적용된 최종 반동 값'을 전달받음
+				float FinalRecoilPitch = EquipedGun->GetCurrentRecoilPitch();
+				RecoilRecoveryRotation += EquipedGun->GetCurrentRecoilPitch();
+			
+				// 3. 카메라 반동 제어 처리
+				if (PController)
+				{
+					// ★ 이미 복구(연사) 중이 아닐 때만 '최초 원래 조준선'을 기억합니다.
+					if (!bIsRecoveringRecoil)
+					{
+						UpRecoilTargetRotation = PController->GetControlRotation();
+					}
+				
+					TargetRotation = PController->GetControlRotation();
+				
+					FRotator RecoilRot = TargetRotation;
+					// 무기가 넘겨준 최종 반동 값을 더해줌
+					RecoilRot.Pitch += FinalRecoilPitch; 
+					PController->SetControlRotation(RecoilRot);
+				
+					// 3. 반동 복구 로직을 활성화합니다.
+					bIsRecoveringRecoil = true;
+				}
+			}
+		}
 	}
 }
 
-void AAPlayer::Reload(const FInputActionValue& Value)
+void AAPlayer::Interact(const FInputActionValue& Value)
 {
-	AGunBase* Gun = Cast<AGunBase>(ChildActor);
-	Gun->Reload();
+	if (CurrentTargetStructure)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Player] %s 토템과 상호작용을 시작합니다."), *CurrentTargetStructure->GetName());
+		CurrentTargetStructure->Interact(this);
+        CurrentTargetStructure = nullptr;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Player] 주변에 상호작용 가능한 토템이 없습니다."));
+	}
+}
+
+void AAPlayer::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+	// 반동 복구 상태일 때만 작동
+	if (bIsRecoveringRecoil)
+	{
+		if (PController)
+		{
+			FRotator CurrentRotation = PController->GetControlRotation();
+
+			// RInterpTo를 사용해 현재 회전값에서 목표 회전값(원래 쐈던 곳)으로 부드럽게 이동합니다.
+			FRotator NewRotation = FMath::RInterpTo(CurrentRotation, UpRecoilTargetRotation, DeltaTime, RecoilRecoverySpeed);
+			float DeltaPitch = NewRotation.Pitch - CurrentRotation.Pitch;
+			PController->SetControlRotation(NewRotation);
+			RecoilRecoveryRotation -= DeltaPitch;
+
+			// 현재 회전값과 목표 회전값의 차이가 거의 없다면 복구를 종료합니다 (에러 방지 및 최적화)
+			if (FMath::IsNearlyEqual(CurrentRotation.Pitch, UpRecoilTargetRotation.Pitch, 0.05f) && RecoilRecoveryRotation <= 0)
+			{
+				bIsRecoveringRecoil = false;
+			}
+		}
+	}
+
 }
 void AAPlayer::SkillInputKey(const FInputActionValue& Value)
 {
-	if (SkillInstance)
+	if (USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance))
 	{
-		USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance);
-		if (!Skill->IsRegistered())
-		{
-			Skill->RegisterComponent();
-		}
-		else
-		{
-			Skill->ActiveCheck();
-		}
+		Skill->ActiveSkill();
 	}
 }
 void AAPlayer::NotifyControllerChanged()
@@ -170,23 +250,29 @@ void AAPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(SkillActive, ETriggerEvent::Started, this, &AAPlayer::SkillInputKey);
 		
 		//Reload Activing
-		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &AAPlayer::SkillInputKey);
-	}
-	else
-	{
-		//UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &AAPlayer::Reload);
+		
+		// Shoot Actiiving
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &AAPlayer::Shooting);
+		
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AAPlayer::Interact);
+		
 	}
 }
 
 void AAPlayer::AddCurrentHp(int32 Add_Hp)
 {
-	if (CurrentHp + Add_Hp <= MaxHp)
+	// Test Log
+	UE_LOG(LogTemp, Warning, TEXT("Current HP: %d , Add HP: %d"),CurrentHp, Add_Hp);
+	if (CurrentHp + Add_Hp >= MaxHp)
 	{
-		CurrentHp += Add_Hp;
+		CurrentHp = MaxHp;
+		UE_LOG(LogTemp, Warning, TEXT("Current HP: %d"),CurrentHp);
 	}
 	else
 	{
-		CurrentHp = MaxHp;
+		CurrentHp += Add_Hp;
+		UE_LOG(LogTemp, Warning, TEXT("Current HP: %d"),CurrentHp);
 	}
 }
 
@@ -195,22 +281,34 @@ void AAPlayer::AddMaxHp(int32 Add_Max_Hp)
 	MaxHp += Add_Max_Hp;
 	CurrentHp += Add_Max_Hp;
 }
-
 void AAPlayer::AddPlayerSpeed(float Add_Speed)
 {
-	MoveSpeed += Add_Speed;
+	// 캐릭터 무브먼트 컴포넌트를 가져옵니다.
+	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+	if (MoveComp)
+	{
+		if (MoveSpeed + Add_Speed > 0.0f )
+		{
+			MoveSpeed += Add_Speed;
+			// 실제 최대 이동 속도를 더해줍니다.
+			MoveComp->MaxWalkSpeed = MoveSpeed;
+			// 내 스탯 변수에도 동기화하고 싶다면 같이 업데이트
+			
+		}
+	}
 }
-
 void AAPlayer::TotalDamageUpGrade(float AddRelicBonus, float TotalBonus,float Critical)
 {
 	if (ChildActor)
 	{
-		AGunBase* Gun = Cast<AGunBase>(ChildActor);
-		if (!Gun) return;
-		Gun->AddDamage(AddRelicBonus,TotalBonus,Critical);
+		
+		if (!EquipGun)
+		{
+			return;
+		}
+		EquipGun->AddDamage(AddRelicBonus,TotalBonus,Critical);
 	}
 }
-
 void AAPlayer::AddExp(int32 Add_Exp)
 {
 	Exp += Add_Exp;
@@ -219,7 +317,7 @@ void AAPlayer::AddExp(int32 Add_Exp)
 	// 만약  Lvelup 시 레벨업 경험치 증가시 따로 추가할 것
 	 if (Exp >= LevelUpExp)
 	 {
-	 	if (Level < 16)
+	 	if (Level < MaxLevel)
 	 	{
 	 		Exp -= LevelUpExp;
 	 		LevelUpStat();
@@ -228,20 +326,42 @@ void AAPlayer::AddExp(int32 Add_Exp)
 }
 void AAPlayer::LevelUpStat()
 {
-	MaxHp += 16;
-	Level++;
-	JumpZVelocity += 8.0f;
-	MoveSpeed += 18.0f;
-	GetCharacterMovement()->JumpZVelocity += 8.0f;
+	MaxHp += MaxHPIncrease;
+	++Level;
+	// 여기 매직넘버는 추후 수정 예정
+	LevelUpExp =static_cast<int>(200 * pow(1.35, Level));
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveSpeed += SpeedIncrease;
+		MoveComp->MaxWalkSpeed = MoveSpeed; // ★ 실제 걷기 속도에 반영 필수!
+	}
 }
-
 void AAPlayer::DegreaseSkillCoolTime(float SkillCoolTime)
 {
 	if (SkillInstance)
 	{
 		USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance);
-		Skill->SkiilDegreaseTime(SkillCoolTime);
+		Skill->DecreaseTimeSkill(SkillCoolTime);
 	}
+}
+
+void AAPlayer::UpgradeWeaponParts(EPartsName PartsType)
+{
+	if (ChildActor && EquipGun)
+	{
+		EquipGun->SelectParts(PartsType);
+	}
+}
+
+FGunParts AAPlayer::GetCurrentWeaponPartsData(EPartsName PartsType)
+{
+	if (ChildActor && EquipGun)
+	{
+		return EquipGun->GetPartsData(PartsType);
+	}
+    
+	// 무기가 없다면 텅 빈 구조체 반환
+	return FGunParts();
 }
 
 float AAPlayer::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,class AController* EventInstigator,AActor* DamageCauser)
@@ -254,15 +374,6 @@ float AAPlayer::TakeDamage(float DamageAmount, struct FDamageEvent const& Damage
 		DamageAmount,
 		CurrentHp
 	);
-	
-	/*
-	 Super::TakeDamage(
-		DamageAmount //  데미지
-		,DamageEvent // 이벤트
-		,EventInstigator // Player를 공격한 actor ( 몬스터 ) controller 
-		,DamageCauser); // 때린 Actor 데이터 
-	 */
-	
 	if (CurrentHp <= 0.f)
 	{
 		OnDeath();
