@@ -35,6 +35,8 @@ class CH3_TEAM2_API UMasterSubsystem : public UGameInstanceSubsystem
 	
 public:
 	// 방송 채널들
+	UPROPERTY()
 	FOnBattleSummarySignature OnBattleResult;
+	UPROPERTY()
 	FOnCurrencyChanged OnCurrencyChanged;
 };
