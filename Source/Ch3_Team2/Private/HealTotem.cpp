@@ -28,6 +28,30 @@ void AHealTotem::BeginPlay()
 	CollisionBox->OnComponentEndOverlap.AddDynamic(this, &AHealTotem::OnOverlapEnd);
 }
 
+void AHealTotem::OnSpawnFromPool(const FTransform& Transform)
+{
+	SetActorLocationAndRotation(Transform.GetLocation(), Transform.GetRotation());
+	
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	
+	if (CollisionBox)
+	{
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+}
+
+void AHealTotem::OnReturnToPool()
+{
+	if (CollisionBox)
+	{
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+}
+
 void AHealTotem::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -72,7 +96,7 @@ void AHealTotem::Interact(AActor* Interactor)
         
 		UE_LOG(LogTemp, Warning, TEXT("[HealTotem] 상호작용 완료! 플레이어에게 %d 힐 전송 후 토템 파괴"), HealAmount);
         
-		// 사용된 토템은 월드에서 삭제
-		Destroy();
+		// 사용된 토템을 브로드캐스트로 보내 줌
+		ReadyToReturn.Broadcast(this);
 	}
 }
