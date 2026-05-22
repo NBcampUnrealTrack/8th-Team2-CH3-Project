@@ -294,19 +294,16 @@ void AAPlayer::TotalDamageUpGrade(float AddRelicBonus, float TotalBonus,float Cr
 void AAPlayer::AddExp(int32 Add_Exp)
 {
 	Exp += Add_Exp;
-	 if (Exp >= LevelUpExp)
+	 if (Exp >= LevelUpExp &&Level < MaxLevel)
 	 {
-	 	if (Level < MaxLevel)
-	 	{
 	 		Exp -= LevelUpExp;
 	 		LevelUpStat();
-	 	}
-	 }
+		 }
 }
 void AAPlayer::LevelUpStat()
 {
-	MaxHp += MaxHPIncrease;
-	CurrentHp += MaxHPIncrease;
+	AddMaxHp(MaxHPIncrease);	
+	CurrentHp = MaxHp;
 	++Level;
 	// 여기 매직넘버는 추후 수정 예정
 	LevelUpExp =FMath::RoundToInt32(200.0f * FMath::Pow(1.35f, Level));
