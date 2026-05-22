@@ -102,7 +102,6 @@ void AGunBase::HandleFireDelay()
 
 void AGunBase::AddDamage(float Add_RelicDamage,float Add_TotalDamage,float Critical)
 {
-	// 성유물 기본 공격력 증가
 	RelicBonus += Add_RelicDamage;
 	TotalBonus += Add_TotalDamage;
 	CritMultiplier += Critical;
@@ -175,7 +174,7 @@ void AGunBase::InitializeParts()
 	Bullet.Parts = EPartsName::Bullet;
 	
 	Magazine.Name = "Magazine";
-	Magazine.Level = 1;
+	Magazine.Level = 0;
 	Magazine.Value = ReloadTime*LevelUpReloadValue;
 	Magazine.Parts = EPartsName::Magazine;
 	
@@ -191,14 +190,13 @@ void AGunBase::InitializeParts()
 }
 float AGunBase::GetCurrentRecoilPitch() const
 {
-	// 핸들 파츠의 Value가 반동 감소율(예: 0.2 -> 20% 감소)이라면 아래와 같이 계산
-	// 초기 Value가 0이므로, (1.0f - Handle.Value) 형태로 보정합니다.
 	float RecoilModifier = FMath::Clamp(1.0f - Handle.Value, 0.1f, 1.0f);
 	return Recoil * RecoilModifier;
 }
 
 void AGunBase::BeginPlay()
 {
+	Super::BeginPlay();
 	InitializeParts();
 	AddDamage(0,0,0);
 	

@@ -21,6 +21,13 @@ void USkill_SlowTimeComp::ActiveSkill()
 			,false
 			);
 }
+
+void USkill_SlowTimeComp::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorld()->GetTimerManager().ClearTimer(SkillTimerHandle);
+	Super::EndPlay(EndPlayReason);
+}
+
 void USkill_SlowTimeComp::EndSkill()
 {
 	GetWorld()->GetTimerManager().ClearTimer(SkillTimerHandle);
