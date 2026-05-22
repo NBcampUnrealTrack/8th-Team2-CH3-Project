@@ -3,6 +3,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "APlayer.h"
+#include "Kismet/GameplayStatics.h"
 
 AHealTotem::AHealTotem()
 {
@@ -43,6 +44,17 @@ void AHealTotem::OnSpawnFromPool(const FTransform& Transform)
 
 void AHealTotem::OnReturnToPool()
 {
+	if (GetWorld())
+	{
+		AAPlayer* Player = Cast<AAPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+        
+		if (Player && Player->GetCurrentStructure() == this)
+		{
+			// 토템이 비활성화 될 때 플레이어가 토템 주소를 갖고 있다면 비워 줌
+			Player->SetCurrentStructure(nullptr);
+		}
+	}
+	
 	if (CollisionBox)
 	{
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -93,7 +105,7 @@ void AHealTotem::Interact(AActor* Interactor)
 	if (Player)
 	{
 		Player->AddCurrentHp(HealAmount);
-        
+        // Test Log
 		UE_LOG(LogTemp, Warning, TEXT("[HealTotem] 상호작용 완료! 플레이어에게 %d 힐 전송 후 토템 파괴"), HealAmount);
         
 		// 사용된 토템을 브로드캐스트로 보내 줌
