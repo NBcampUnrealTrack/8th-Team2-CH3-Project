@@ -43,7 +43,7 @@ void UBattleSubsystem::ExecuteDamageCalculation(AActor* Attacker, AActor* Victim
 		return;
 	}
 	
-	if (CachedPlayer == nullptr)
+	if (CachedPlayer == nullptr || !IsValid(CachedPlayer))
 	{
 		CachedPlayer = Cast<AAPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	}
