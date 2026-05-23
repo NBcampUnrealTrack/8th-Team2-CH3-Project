@@ -29,7 +29,7 @@ public:
 
 protected:
 	UPROPERTY()
-	AAPlayer* CachedPlayer = nullptr;
+	TWeakObjectPtr<AAPlayer> CachedPlayer;
 	
 private:
 	int32 TotalDamage = 0;

@@ -43,13 +43,15 @@ void UBattleSubsystem::ExecuteDamageCalculation(AActor* Attacker, AActor* Victim
 		return;
 	}
 	
-	if (CachedPlayer == nullptr || !IsValid(CachedPlayer))
+	if (!CachedPlayer.IsValid())
 	{
 		CachedPlayer = Cast<AAPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	}
 
 	float FinalDamage = CalculateFinalDamage(Attacker, BaseDamage, bIsCritical, CritMultiplier);
-	if (Attacker->GetOwner() == CachedPlayer || Attacker == CachedPlayer)
+	
+	AAPlayer* Player = CachedPlayer.Get();
+	if (Attacker->GetOwner() == Player || Attacker == Player)
 	{
 		TotalDamage += FMath::RoundToInt32(FinalDamage);
 	}
@@ -66,7 +68,7 @@ void UBattleSubsystem::ExecuteDamageCalculation(AActor* Attacker, AActor* Victim
 	// Test Log
 	UE_LOG(LogTemp, Log, TEXT("=== BATTLE REPORT ==="));
 	UE_LOG(LogTemp, Log, TEXT("Attacker: %s | Victim: %s"), *Attacker->GetName(), *Victim->GetName());
-	UE_LOG(LogTemp, Log, TEXT("Final Damage: %f | Total Accum: %d"), FinalDamage, TotalDamage);
+	UE_LOG(LogTemp, Log, TEXT("Final Damage: %f | Total Damage: %d"), FinalDamage, TotalDamage);
 	UE_LOG(LogTemp, Log, TEXT("====================="));
 }
 
@@ -78,7 +80,9 @@ float UBattleSubsystem::CalculateFinalDamage(AActor* Attacker, float BaseDamage,
     }
 
 	float CalculatedDamage = BaseDamage;
-	if (Attacker->GetOwner() == CachedPlayer || Attacker == CachedPlayer)
+	
+	AAPlayer* Player = CachedPlayer.Get();
+	if (Attacker->GetOwner() == Player || Attacker == Player)
 	{
 		CalculatedDamage *= CritMultiplier;
 	}
