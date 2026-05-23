@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "GunBase.h"
 #include "Battle/BattleSubsystem.h"
 #include "public/MonsterBase.h"
@@ -41,7 +38,7 @@ void AGunBase::Reloading()
 }
 void AGunBase::FireGun(FVector Location, FVector Direction)
 {
-	FVector SpreadDirection = FMath::VRandCone(Direction, FMath::DegreesToRadians(SpreadAngleDegrees ));
+	FVector SpreadDirection = FMath::VRandCone(Direction, FMath::DegreesToRadians(SpredAngle ));
 	FVector End = Location + (SpreadDirection * EffectiveRange);
 
 	FHitResult HitResult;
@@ -105,30 +102,29 @@ void AGunBase::AddDamage(float Add_RelicDamage,float Add_TotalDamage,float Criti
 	RelicBonus += Add_RelicDamage;
 	TotalBonus += Add_TotalDamage;
 	CritMultiplier += Critical;
-	FinalDamage = (BaseDamage * (1 + Bullet.Value )+ RelicBonus ) * TotalBonus;
+	FinalDamage = (BaseDamage * (1 + Bullet.Value * Bullet.Level )+ RelicBonus ) * TotalBonus;
 }
 void AGunBase::SelectParts(EPartsName parts)
 {
 	if (parts == EPartsName::Bullet && Bullet.Level < MaxLevelParts)
 	{
 		++Bullet.Level;
-		Bullet.Value += LevelUpDamageValue;
 		AddDamage(0,0,0);
-	}
-	else if (parts == EPartsName::Magazine && Magazine.Level < MaxLevelParts)
-	{
-		++Scope.Level;
-		SpreadAngleDegrees -= Scope.Value;
 	}
 	else if (parts == EPartsName::Scope && Scope.Level < MaxLevelParts)
 	{
-		++Handle.Level;
-		Recoil -= Handle.Value; 
+		++Scope.Level;
+		SpredAngle = SpreadAngleDegrees - SpreadAngleDegrees * Scope.Level * Scope.Value;
 	}
 	else if (parts == EPartsName::Handle && Handle.Level < MaxLevelParts)
 	{
+		++Handle.Level;
+		ActiveRecoil = Recoil - Recoil* Handle.Level* Handle.Value + AddedRecoil; 
+	}
+	else if (parts == EPartsName::Magazine && Magazine.Level < MaxLevelParts)
+	{
 		++Magazine.Level;
-		ReloadTime -= Magazine.Value;
+		ActiveReload = ReloadTime - ReloadTime* Magazine.Level *Magazine.Value +AddReloadTime;
 	}
 }
 
@@ -154,44 +150,44 @@ FGunParts AGunBase::GetPartsData(EPartsName PartsType) const
 		}
 	default:
 		{
-			
 		return FGunParts();
 		}
 	}
 }
 void AGunBase::DegreaseReloadTimeStat(float AddReload)
 {
-	if (ReloadTime + AddReload >= 0.1f)
+	if (ActiveReload + AddReload >= 0.1f)
 	{
-		ReloadTime += AddReload;
+		AddReloadTime += AddReload;
+		ActiveReload = ReloadTime - ReloadTime* Magazine.Level *Magazine.Value +AddReloadTime;
 	}
 }
 void AGunBase::InitializeParts()
 {
 	Bullet.Name = "Bullet";
 	Bullet.Level = 0;
-	Bullet.Value = 0;
+	Bullet.Value = LevelUpDamageValue;
 	Bullet.Parts = EPartsName::Bullet;
 	
 	Magazine.Name = "Magazine";
 	Magazine.Level = 0;
-	Magazine.Value = ReloadTime*LevelUpReloadValue;
+	Magazine.Value = LevelUpReloadValue;
 	Magazine.Parts = EPartsName::Magazine;
 	
 	Scope.Name = "Scope";
 	Scope.Level = 0;  
-	Scope.Value = SpreadAngleDegrees*LevelUpScopeValue;  
+	Scope.Value = LevelUpScopeValue;  
 	Scope.Parts = EPartsName::Scope;
 	
 	Handle.Name = "Handle";
 	Handle.Level = 0;
-	Handle.Value = Recoil* LevelUpHandleValue;
+	Handle.Value = LevelUpHandleValue;
 	Handle.Parts = EPartsName::Handle;
 }
 float AGunBase::GetCurrentRecoilPitch() const
 {
 	float RecoilModifier = FMath::Clamp(1.0f - Handle.Value, 0.1f, 1.0f);
-	return Recoil * RecoilModifier;
+	return ActiveRecoil * RecoilModifier;
 }
 
 void AGunBase::BeginPlay()
@@ -199,5 +195,4 @@ void AGunBase::BeginPlay()
 	Super::BeginPlay();
 	InitializeParts();
 	AddDamage(0,0,0);
-	
 }

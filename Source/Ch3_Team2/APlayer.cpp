@@ -263,8 +263,11 @@ void AAPlayer::AddCurrentHp(int32 Add_Hp)
 
 void AAPlayer::AddMaxHp(int32 Add_Max_Hp)
 {
-	MaxHp += Add_Max_Hp;
-	CurrentHp += Add_Max_Hp;
+	if (MaxHp + Add_Max_Hp >= 0)
+	{
+		MaxHp = BaseMaxHp + Level* MaxHPIncrease + Add_Max_Hp;
+		CurrentHp += Add_Max_Hp;
+	}
 }
 void AAPlayer::AddPlayerSpeed(float Add_Speed)
 {
@@ -273,7 +276,9 @@ void AAPlayer::AddPlayerSpeed(float Add_Speed)
 	{
 		if (MoveSpeed + Add_Speed > 0.0f )
 		{
-			MoveSpeed += Add_Speed;
+			// Relic Speed는 RelicEffectBase 수정될 떄까지 일단 킵
+			RelicBonusHp += Add_Speed;
+			MoveSpeed = BaseMoveSpeed + Level*SpeedIncrease + RelicBonusHp; 
 			MoveComp->MaxWalkSpeed = MoveSpeed;
 			
 		}
@@ -283,12 +288,11 @@ void AAPlayer::TotalDamageUpGrade(float AddRelicBonus, float TotalBonus,float Cr
 {
 	if (ChildActor)
 	{
-		
-		if (!EquipGun)
+		if (!EquipedGun)
 		{
 			return;
 		}
-		EquipGun->AddDamage(AddRelicBonus,TotalBonus,Critical);
+		EquipedGun->AddDamage(AddRelicBonus,TotalBonus,Critical);
 	}
 }
 void AAPlayer::AddExp(int32 Add_Exp)
@@ -302,16 +306,11 @@ void AAPlayer::AddExp(int32 Add_Exp)
 }
 void AAPlayer::LevelUpStat()
 {
-	AddMaxHp(MaxHPIncrease);	
+	AddMaxHp(0);	
 	CurrentHp = MaxHp;
 	++Level;
-	// 여기 매직넘버는 추후 수정 예정
-	LevelUpExp =FMath::RoundToInt32(200.0f * FMath::Pow(1.35f, Level));
-	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
-	{
-		MoveSpeed += SpeedIncrease;
-		MoveComp->MaxWalkSpeed = MoveSpeed; // ★ 실제 걷기 속도에 반영 필수!
-	}
+	LevelUpExp =FMath::RoundToInt32(BaseExp * FMath::Pow(BaseUpExp, Level));
+	AddPlayerSpeed(0);
 }
 void AAPlayer::DegreaseSkillCoolTime(float SkillCoolTime)
 {
@@ -324,17 +323,17 @@ void AAPlayer::DegreaseSkillCoolTime(float SkillCoolTime)
 
 void AAPlayer::UpgradeWeaponParts(EPartsName PartsType)
 {
-	if (ChildActor && EquipGun)
+	if (ChildActor && EquipedGun)
 	{
-		EquipGun->SelectParts(PartsType);
+		EquipedGun->SelectParts(PartsType);
 	}
 }
 
 FGunParts AAPlayer::GetCurrentWeaponPartsData(EPartsName PartsType)
 {
-	if (ChildActor && EquipGun)
+	if (ChildActor && EquipedGun)
 	{
-		return EquipGun->GetPartsData(PartsType);
+		return EquipedGun->GetPartsData(PartsType);
 	}
     
 	// 무기가 없다면 텅 빈 구조체 반환
