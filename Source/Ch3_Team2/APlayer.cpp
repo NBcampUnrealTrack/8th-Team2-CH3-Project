@@ -288,11 +288,11 @@ void AAPlayer::TotalDamageUpGrade(float AddRelicBonus, float TotalBonus,float Cr
 {
 	if (ChildActor)
 	{
-		if (!EquipGun)
+		if (!EquipedGun)
 		{
 			return;
 		}
-		EquipGun->AddDamage(AddRelicBonus,TotalBonus,Critical);
+		EquipedGun->AddDamage(AddRelicBonus,TotalBonus,Critical);
 	}
 }
 void AAPlayer::AddExp(int32 Add_Exp)
@@ -323,17 +323,17 @@ void AAPlayer::DegreaseSkillCoolTime(float SkillCoolTime)
 
 void AAPlayer::UpgradeWeaponParts(EPartsName PartsType)
 {
-	if (ChildActor && EquipGun)
+	if (ChildActor && EquipedGun)
 	{
-		EquipGun->SelectParts(PartsType);
+		EquipedGun->SelectParts(PartsType);
 	}
 }
 
 FGunParts AAPlayer::GetCurrentWeaponPartsData(EPartsName PartsType)
 {
-	if (ChildActor && EquipGun)
+	if (ChildActor && EquipedGun)
 	{
-		return EquipGun->GetPartsData(PartsType);
+		return EquipedGun->GetPartsData(PartsType);
 	}
     
 	// 무기가 없다면 텅 빈 구조체 반환
