@@ -28,7 +28,6 @@ public:
 	void BroadcastBattleResult();
 
 protected:
-	UPROPERTY()
 	TWeakObjectPtr<AAPlayer> CachedPlayer;
 	
 private:

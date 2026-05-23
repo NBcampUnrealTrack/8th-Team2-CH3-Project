@@ -136,6 +136,11 @@ void UBattleSubsystem::ProcessDeathAndKillCount(AActor* Victim)
 
 void UBattleSubsystem::BroadcastBattleResult()
 {
+	if (!GetGameInstance())
+	{
+		return;
+	}
+	
 	if (UMasterSubsystem* MasterSubsystem = GetGameInstance()->GetSubsystem<UMasterSubsystem>())
 	{
 		MasterSubsystem->OnBattleResult.Broadcast(MeleeKills, RangedKills, EliteMeleeKills, EliteRangedKills, BossKills, TotalDamage);
