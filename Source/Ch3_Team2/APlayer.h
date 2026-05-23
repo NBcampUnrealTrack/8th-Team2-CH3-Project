@@ -51,9 +51,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* InteractAction;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gun")
-	AGunBase* EquipGun;
-	
 	virtual void Tick(float DeltaTime) override;
 	
 	AAPlayer();
