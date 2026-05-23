@@ -87,13 +87,15 @@ public:
 	const int32 MaxLevel = 16;
 	const int32 MaxHPIncrease = 16;
 	const float SpeedIncrease = 18.0f;
+	const int32 BaseMaxHp = 100;
+	const float BaseMoveSpeed = 1000.0f;
+	const float BaseExp = 200.0f;
+	const float BaseUpExp = 1.35f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
 	int32 MaxHp = 100;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
-	int32 CurrentHp = MaxHp;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
-	float MoveSpeed = 600.0f;
+	int32 CurrentHp = 100;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
 	float JumpZVelocity = 420.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
@@ -104,6 +106,11 @@ public:
 	int32 LevelUpExp = 200;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
 	int32 Level = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
+	float MoveSpeed = 1000.0f;
+	
+	int32 RelicBonusHp = 0;
+	float RelicBonusSpeed = 0.0f;
 	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ExpDrop")
@@ -118,14 +125,23 @@ public:
 	UObject* SkillInstance;
 	
 	// Setter
-	void SetHp(int32 Set_Hp) { MaxHp = Set_Hp;}
+	void SetRelicHp(int32 Set_Hp) { RelicBonusHp = Set_Hp;}
+	void SetRelicSpeed(float Set_RelicSpeed){RelicBonusSpeed = Set_RelicSpeed;}
+	void SetExp(int32 Set_Exp) {Exp = Set_Exp;}
+	void SetLevel(int32 Set_Level) { Level = Set_Level;}
+	
 	FORCEINLINE void SetCurrentStructure(class AHealTotem* NewStructure) 
 	{ CurrentTargetStructure = NewStructure; }
-	
 	// Getter
 	int32 GetCurrentHp() const {return CurrentHp;}
 	int32 GetMapHp() const {return MaxHp;}
 	float GetSpeed() const {return MoveSpeed;}
+	int32 GetExp() const {return Exp;}
+	int32 GetLevel() const {return Level;}
+	
+	// OverDrive용으로 사용됩니다.
+	float GetTotalSpeed() const {return MoveSpeed;}
+
 	FORCEINLINE AHealTotem* GetCurrentStructure() const 
 	{ return CurrentTargetStructure; }
 
@@ -145,7 +161,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "RecoilControll")
 	AGunBase* EquipedGun;
-	// UI에서 파츠 레벨업 버튼을 누르면 호출할 함수
 	UFUNCTION(BlueprintCallable, Category = "Player|Upgrade")
 	void UpgradeWeaponParts(EPartsName PartsType);
 
@@ -154,12 +169,9 @@ public:
 	FGunParts GetCurrentWeaponPartsData(EPartsName PartsType);
 
 	float RecoilRecoveryRotation = 0;
-	// 복구해야 할 원본 조준선 저장용
 	FRotator TargetRotation = FRotator::ZeroRotator;
-	// 총을 쏘기 전, 원래 바라보고 있던 조준선 방향을 저장할 변수
 	FRotator UpRecoilTargetRotation= FRotator::ZeroRotator;
 	
-	// 반동 복구가 활성화되었는지 여부
 	bool bIsRecoveringRecoil = false;
 	
 	// 반동 복구 속도 (값이 클수록 빠르게 원래대로 돌아옵니다)
