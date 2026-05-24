@@ -30,7 +30,8 @@ private:
 	int32 PrevLevelIndex = INDEX_NONE;
 
 	void SyncCurrentLevelIndex();
-	
+	void PreloadNextLevel();
+
 	UPROPERTY()
 	TObjectPtr<ULevelFlowDataAsset> LoadedFlowData;
 };
