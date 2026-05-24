@@ -51,7 +51,7 @@ void ARelicManager::AddOwnedRelic(const FRelicData& NewRelic)
 	
 	RandomRelicOption.Empty();
 	
-	if (NewRelic.Grade == ERelicGrade::Epic || NewRelic.Grade == ERelicGrade::Legendary)
+	if (NewRelic.RelicId >= 1017)
 	{
 		BlockedRelicIDs.Add(NewRelic.RelicId);
 	}

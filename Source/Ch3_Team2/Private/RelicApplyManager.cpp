@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "RelicApplyManager.h"
+
+#include "KismetCompiler.h"
 #include "Ch3_Team2/APlayer.h"
 #include "Kismet/GameplayStatics.h"
 #include "RelicData.h"
@@ -10,18 +12,19 @@
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
 
-void ARelicApplyManager::ApplyRelicById(TArray<TPair<int32, bool>> RelicIDs)
+void ARelicApplyManager::ApplyRelicById(TArray<TPair<int32, bool>> &RelicIDs)
 {
     // 개수가 0일 때 early return
     if (RelicIDs.Num() == 0) return;
     
-    for (const TPair<int32, bool>& RelicID : RelicIDs)
+    for (TPair<int32, bool>& RelicID : RelicIDs)
     {
         if (RelicID.Value == true) continue;
        
         if (RelicID.Key <= 1016)
         {
             FindRelicData(RelicID.Key);
+            RelicID.Value = true;
             continue;
         }
 
@@ -38,6 +41,8 @@ void ARelicApplyManager::ApplyRelicById(TArray<TPair<int32, bool>> RelicIDs)
         case 1124: Relic1124(); break;
         default:   break;
         }
+        
+        RelicID.Value = true;
     }
 }
 
@@ -54,6 +59,18 @@ void ARelicApplyManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
     }
 
     Super::EndPlay(EndPlayReason);
+}
+
+void ARelicApplyManager::RelieBattleSystem(float Value, AActor* Victim)
+{
+    AAPlayer* Player = Cast<AAPlayer>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+    
+    if (!Player) return;
+    
+    UBattleSubsystem* BattleSubsystem = GetGameInstance()->GetSubsystem<UBattleSubsystem>();
+    if (!BattleSubsystem) return;
+    
+    BattleSubsystem->ExecuteDamageCalculation(Player, Victim, Value, false, 1.f);
 }
 
 void ARelicApplyManager::FindRelicData(int32 RelicID) const
@@ -75,6 +92,8 @@ void ARelicApplyManager::FindRelicData(int32 RelicID) const
         }
     }
 }
+
+
 
 void ARelicApplyManager::RelicStatUp(float Value, ERelicStatType StatType) const
 {
@@ -142,6 +161,8 @@ void ARelicApplyManager::Relic1117()
        
         TArray<AActor*> OverlappedActors;
        
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(World,WeakThis->Aurora,Center,FRotator::ZeroRotator,FVector(1.f),true,true);
+        
         UKismetSystemLibrary::SphereOverlapActors(
             World, Center, Radius, ObjectTypes, AMonsterBase::StaticClass(), IgnoreActors, OverlappedActors
         );
@@ -302,4 +323,15 @@ void ARelicApplyManager::Relic1124()
         World->SpawnActor<AActor>(WeakThis->MoonRabbit, SpawnPoint, FRotator::ZeroRotator);
     }, 15.f, true, 1.f);
 }
+
+void ARelicApplyManager::Relic1125()
+{
+    
+}
+
+bool ARelicApplyManager::Revive()
+{
+   return false;
+}
+
 

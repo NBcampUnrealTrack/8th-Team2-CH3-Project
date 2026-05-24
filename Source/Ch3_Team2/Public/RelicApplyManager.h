@@ -16,14 +16,19 @@ class CH3_TEAM2_API ARelicApplyManager : public AActor
 	
 public:
 
-	void ApplyRelicById(TArray<TPair<int32,bool>> RelicIDs);
+	void ApplyRelicById(TArray<TPair<int32,bool>> &RelicIDs);
 	
 	UFUNCTION(BlueprintCallable, Category = "Relic")
 	void RelicStatUp(float Value, ERelicStatType StatType) const;
+	UFUNCTION(BlueprintCallable, Category = "Relic")
+	void RelieBattleSystem(float Value, AActor* Victim);
 	
 	void FindRelicData(int32 RelicID) const;
 	
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
+	bool Revive();
+	
 	
 	void Relic1027();
 	void Relic1117();
@@ -34,6 +39,7 @@ public:
 	void Relic1122();
 	void Relic1123();
 	void Relic1124();
+	void Relic1125();
 	
 	
 	
@@ -50,6 +56,8 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "RelicNiagara")
 	UNiagaraSystem* LightningFX;
+	UPROPERTY(EditAnywhere, Category = "RelicNiagara")
+	UNiagaraSystem* Aurora;
 
 	
 protected:
