@@ -10,7 +10,7 @@ class CH3_TEAM2_API USaveData : public USaveGame
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(SaveGame) int32 SaveVersion = 2;
+	UPROPERTY(SaveGame) int32 SaveVersion = 3;
 	
 	UPROPERTY(SaveGame) TArray<int32> RelicIDs;
 	UPROPERTY(SaveGame) int32 PlayerLevel = 0, PlayerSkill = 0, PlayerWeapon = 0;

@@ -3,7 +3,15 @@
 #include "Data/SaveData.h"
 #include "Kismet/GameplayStatics.h"
 
-const FString USaveSubsystem::SlotName = TEXT("MainSave");
+FString USaveSubsystem::GetSlotName() const
+{
+    FDateTime Now = FDateTime::Now();
+    return FString::Printf(TEXT("Save_%04d%02d%02d_%02d%02d%02d"),
+        Now.GetYear(), Now.GetMonth(), Now.GetDay(),
+        Now.GetHour(), Now.GetMinute(), Now.GetSecond()
+    );
+    // 결과 예시: Save_20250524_143022
+}
 
 void USaveSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -35,6 +43,9 @@ void USaveSubsystem::Deinitialize()
         MasterSubsystem->OnSaveTime.RemoveDynamic(this, &USaveSubsystem::OnMasterSaveTime);
         MasterSubsystem->OnBattleResult.RemoveDynamic(this, &USaveSubsystem::OnMasterBattleResult);
     }
+    
+    CurrentSlotName = GetSlotName();
+    SaveGame();
 
     // 부모를 마지막에 해제
     Super::Deinitialize();
@@ -46,20 +57,22 @@ void USaveSubsystem::SaveGame()
     {
         return;
     }
-    UGameplayStatics::SaveGameToSlot(CurrentSave, SlotName, 0);
+    UGameplayStatics::SaveGameToSlot(CurrentSave, CurrentSlotName, 0);
 }
 
 void USaveSubsystem::LoadGame()
 {
-    if (UGameplayStatics::DoesSaveGameExist(SlotName, 0))
-    {
-        CurrentSave = Cast<USaveData>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
-    }
-
-    if (!CurrentSave)
-    {
-        CurrentSave = Cast<USaveData>(UGameplayStatics::CreateSaveGameObject(USaveData::StaticClass()));
-    }
+    CurrentSave = Cast<USaveData>(UGameplayStatics::CreateSaveGameObject(USaveData::StaticClass()));
+    
+    // if (UGameplayStatics::DoesSaveGameExist(CurrentSlotName, 0))
+    // {
+    //     CurrentSave = Cast<USaveData>(UGameplayStatics::LoadGameFromSlot(CurrentSlotName, 0));
+    // }
+    //
+    // if (!CurrentSave)
+    // {
+    //     CurrentSave = Cast<USaveData>(UGameplayStatics::CreateSaveGameObject(USaveData::StaticClass()));
+    // }
 }
 
 void USaveSubsystem::OnMasterBattleResult(int32 MeleeKills, int32 RangedKills, int32 EliteMeleeKills, int32 EliteRangedKills, int32 BossKills, int32 GlobalTotalDamage)
@@ -97,15 +110,11 @@ void USaveSubsystem::OnMasterSaveTime(int32 StageIndex, float ClearTime)
     }
 
     CurrentSave->StageClearTime[StageIndex] = ClearTime;
-    
-    SaveGame();
 }
 
 void USaveSubsystem::OnMasterSaveRelic(TArray<int32> RelicIDs)
 {
     CurrentSave->RelicIDs = RelicIDs;
-    
-    SaveGame();
 }
 
 void USaveSubsystem::OnMasterSavePlayer(int32 PlayerLevel, int32 PlayerSkill, int32 PlayerWeapon)
@@ -113,8 +122,6 @@ void USaveSubsystem::OnMasterSavePlayer(int32 PlayerLevel, int32 PlayerSkill, in
     CurrentSave->PlayerLevel = PlayerLevel;
     CurrentSave->PlayerSkill = PlayerSkill;
     CurrentSave->PlayerWeapon = PlayerWeapon;
-    
-    SaveGame();
 }
 
 void USaveSubsystem::OnMasterSaveGun(int32 GripLevel, int32 ScopeLevel, int32 MagazineLevel, int32 BulletLevel)
@@ -123,6 +130,4 @@ void USaveSubsystem::OnMasterSaveGun(int32 GripLevel, int32 ScopeLevel, int32 Ma
     CurrentSave->ScopeLevel    = ScopeLevel;
     CurrentSave->MagazineLevel = MagazineLevel;
     CurrentSave->BulletLevel   = BulletLevel;
-    
-    SaveGame();
 }

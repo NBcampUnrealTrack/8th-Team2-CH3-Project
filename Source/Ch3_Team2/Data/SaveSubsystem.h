@@ -55,6 +55,7 @@ public:
 private:
 	UPROPERTY()
 	USaveData* CurrentSave = nullptr;
-
-	static const FString SlotName;
+	
+	FString CurrentSlotName;
+	FString GetSlotName() const;
 };
