@@ -21,7 +21,7 @@ void URelicEffectBase::ApplyRelic(UObject* WorldContextObject,const FRelicData& 
 		Player->TotalDamageUpGrade(Relic.Value,0,0);
 		break;
 	case ERelicStatType::SkillCooldown:
-		Player->DegreaseSkillCoolTime(Relic.Value);
+		Player->DecreaseSkillCoolTime(Relic.Value);
 		break;
 	case ERelicStatType::critical:
 		{

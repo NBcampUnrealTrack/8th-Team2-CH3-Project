@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "APlayer.generated.h"
 
+enum class EPartsName : uint8;
 class UInputComponent;
 class USkeletalMeshComponent;
 class UCameraComponent;
@@ -15,10 +16,13 @@ class UInputMappingContext;
 class USphereComponent;
 struct FInputActionValue;
 class AHealTotem;
-
 class USkillBaseComp;
 class AGunBase;
+
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
+
+
 
 UCLASS(config=Game)
 class CH3_TEAM2_API AAPlayer : public ACharacter
@@ -112,8 +116,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ExpDrop")
 	USphereComponent* MagnetComp; 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ExpDrop")
-	USphereComponent* DropExpComp;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Skill")
 	TSubclassOf<USkillBaseComp> SkillComp;
@@ -122,6 +124,7 @@ public:
 	UObject* SkillInstance;
 	
 	void LoadData(int32 GetLevel);
+	void SaveData();
 	
 	// Setter
 	void SetRelicHp(int32 Set_Hp) { RelicBonusHp = Set_Hp;}
@@ -151,9 +154,10 @@ public:
 	void AddPlayerSpeed(float Add_Speed);
 	
 	void TotalDamageUpGrade(float AddRelicBonus, float TotalBonus ,float Critical);
-	void DegreaseSkillCoolTime(float SkillCoolTime);
+	void DecreaseSkillCoolTime(float SkillCoolTime);
 	void LevelUpStat();
 	void OnDeath();
+	
 	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "RecoilControll")
@@ -161,6 +165,17 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "RecoilControll")
 	AGunBase* EquipedGun;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TArray<AGunBase*> MyWeaponInventory;
+	
+	// 🔥 [핵심] 에디터 디테일 패널에서 무기 블루프린트(BP)들을 마우스 클릭으로 등록하는 배열
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TArray<TSubclassOf<AGunBase>> WeaponBlueprintClasses;
+	// 원할 때 인덱스 번호만 넘겨서 무기를 바꾸는 함수
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void SwitchWeapon(int32 Index);
+	
 	UFUNCTION(BlueprintCallable, Category = "Player|Upgrade")
 	void UpgradeWeaponParts(EPartsName PartsType);
 

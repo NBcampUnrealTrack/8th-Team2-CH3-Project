@@ -1,10 +1,6 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 
 #include "APlayer.h"
-
 #include "SkillBaseComp.h"
-
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -17,6 +13,7 @@
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Prop/HealTotem.h"
+
 
 // Sets default values
 AAPlayer::AAPlayer()
@@ -37,31 +34,45 @@ AAPlayer::AAPlayer()
 	
 	MagnetComp = CreateDefaultSubobject<USphereComponent>(TEXT("MagnetComp"));
 	MagnetComp->SetupAttachment(RootComponent);
-	DropExpComp = CreateDefaultSubobject<USphereComponent>(TEXT("DropExpComp"));
-	DropExpComp->SetupAttachment(MagnetComp);
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 	CurrentTargetStructure = nullptr;
 }
 
 void AAPlayer::BeginPlay()
 {
-	
 	Super::BeginPlay();
 	
-	MagnetComp->SetSphereRadius(MagnetRadius);
-	GetCharacterMovement()->JumpZVelocity = JumpZVelocity;
+	LoadData(0);
+	
+	if (GetWorld())
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
+
+		for (TSubclassOf<AGunBase> WeaponClass : WeaponBlueprintClasses)
+		{
+			if (WeaponClass)
+			{
+				AGunBase* NewWeapon = GetWorld()->SpawnActor<AGunBase>(WeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+                
+				if (NewWeapon)
+				{
+					NewWeapon->SetActorHiddenInGame(true);
+					NewWeapon->SetActorEnableCollision(false);
+                    
+					MyWeaponInventory.Add(NewWeapon);
+				}
+			}
+		}
+	}
+	
+	if (MyWeaponInventory.IsValidIndex(2))
+	{
+		SwitchWeapon(2);
+	}
 	
 	PController = Cast<APlayerController>(GetController());
-	EquipedGun = Cast<AGunBase>(ChildActor->GetChildActor());
-	
-	if (ChildActor && GetMesh())
-	{
-		ChildActor->AttachToComponent(
-			GetMesh(),
-			FAttachmentTransformRules::SnapToTargetIncludingScale,
-			TEXT("GripPoint") // 사용할 소켓 이름
-		);
-	}
 	
 	if (SkillComp)
 	{
@@ -69,6 +80,34 @@ void AAPlayer::BeginPlay()
 		if (USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance))
 		{
 			Skill->RegisterComponent();
+		}
+	}
+}
+void AAPlayer::SwitchWeapon(int32 Index)
+{
+	if (!MyWeaponInventory.IsValidIndex(Index) || !MyWeaponInventory[Index])
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[SwitchWeapon] 유효하지 않은 인덱스이거나 무기가 비어있습니다."));
+		return;
+	}
+
+	if (ChildActor)
+	{
+		AGunBase* TargetWeaponData = MyWeaponInventory[Index];
+		if (TargetWeaponData)
+		{
+			ChildActor->SetChildActorClass(TargetWeaponData->GetClass());
+			EquipedGun = Cast<AGunBase>(ChildActor->GetChildActor());
+
+			if (EquipedGun && GetMesh())
+			{
+				ChildActor->AttachToComponent(
+					GetMesh(),
+					FAttachmentTransformRules::SnapToTargetIncludingScale,
+					TEXT("GripPoint")
+				);
+				UE_LOG(LogTemp, Log, TEXT("무기교체 및 ChildActor 에셋 스왑 완료: %s"), *EquipedGun->GetName());
+			}
 		}
 	}
 }
@@ -198,7 +237,7 @@ void AAPlayer::Tick(float DeltaTime)
 				0.05f) && RecoilRecoveryRotation <= 0)
 			{
 				bIsRecoveringRecoil = false;
-				SetActorTickEnabled(true);
+				SetActorTickEnabled(false);
 				
 			}
 		}
@@ -246,14 +285,25 @@ void AAPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		
 	}
 }
-
 void AAPlayer::LoadData(int32 GetLevel)
 {
 	CurrentLevel = GetLevel;
+	MagnetComp->SetSphereRadius(MagnetRadius);
+	GetCharacterMovement()->JumpZVelocity = JumpZVelocity;
+	
 	AddMaxHp(0);
 	AddPlayerSpeed(0);
 }
-
+void AAPlayer::SaveData()
+{
+	/*
+	MasterSubsystem = GetGameInstance()->GetSubsystem<UMasterSubsystem>();
+	if (MasterSubsystem)
+	{
+		MasterSubsystem->OnSavePlayer.Broadcast(CurrentHp);
+	}
+	 */
+}
 void AAPlayer::AddCurrentHp(int32 Add_Hp)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Current HP: %d , Add HP: %d"),CurrentHp, Add_Hp);
@@ -320,7 +370,7 @@ void AAPlayer::LevelUpStat()
 	LevelUpExp =FMath::RoundToInt32(BaseExp * FMath::Pow(BaseUpExp, CurrentLevel));
 	AddPlayerSpeed(0);
 }
-void AAPlayer::DegreaseSkillCoolTime(float SkillCoolTime)
+void AAPlayer::DecreaseSkillCoolTime(float SkillCoolTime)
 {
 	if (SkillInstance)
 	{
@@ -328,6 +378,8 @@ void AAPlayer::DegreaseSkillCoolTime(float SkillCoolTime)
 		Skill->	DecreaseTimeSkill(SkillCoolTime);
 	}
 }
+
+
 void AAPlayer::UpgradeWeaponParts(EPartsName PartsType)
 {
 	if (ChildActor && EquipedGun)
@@ -370,4 +422,3 @@ void AAPlayer::OnDeath()
 	// 사망 로그 호출
 	UE_LOG(LogTemp, Error, TEXT("Player Dead"));
 }
-
