@@ -108,9 +108,11 @@ void USaveSubsystem::OnMasterSaveRelic(TArray<int32> RelicIDs)
     SaveGame();
 }
 
-void USaveSubsystem::OnMasterSavePlayer(int32 PlayerLevel)
+void USaveSubsystem::OnMasterSavePlayer(int32 PlayerLevel, int32 PlayerSkill, int32 PlayerWeapon)
 {
     CurrentSave->PlayerLevel = PlayerLevel;
+    CurrentSave->PlayerSkill = PlayerSkill;
+    CurrentSave->PlayerWeapon = PlayerWeapon;
     
     SaveGame();
 }
