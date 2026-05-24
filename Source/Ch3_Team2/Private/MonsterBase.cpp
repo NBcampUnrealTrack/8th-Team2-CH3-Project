@@ -91,7 +91,7 @@ void AMonsterBase::SetMonsterStats(const FMonsterStats& InStats)
 }
 
 void AMonsterBase::OnSpawnFromPool(const FTransform& Transform)
-{StatComp->OnDeath.AddUniqueDynamic(this,)
+{
 	SetActorLocationAndRotation(Transform.GetLocation(),Transform.GetRotation());
 	GetCharacterMovement()->StopMovementImmediately();
 	
