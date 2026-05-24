@@ -13,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSaveTime, int32, StageIndex, flo
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSaveRelic, TArray<int32>, RelicIDs);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSavePlayer, int32, PlayerLevel);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSavePlayer, int32, PlayerLevel, int32, PlayerSkill, int32, PlayerWeapon);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnSaveGun, int32, GripLevel, int32, ScopeLevel, int32, MagazineLevel, int32, BulletLevel);
 
