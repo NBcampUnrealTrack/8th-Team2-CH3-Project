@@ -73,16 +73,60 @@ void AAPlayer::BeginPlay()
 	}
 	
 	PController = Cast<APlayerController>(GetController());
-	
-	if (SkillComp)
+	// 🔥 2. [스킬 인벤토리 생성]
+	// 런타임 스왑 시 버벅임(지연)을 방지하기 위해 클래스 배열을 순회하며 미리 인스턴스를 생성해 둡니다.
+	for (TSubclassOf<USkillBaseComp> SkillClass : SkillBlueprintClasses)
 	{
-		SkillInstance = NewObject<USkillBaseComp>(this, SkillComp);
-		if (USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance))
+		if (SkillClass)
 		{
-			Skill->RegisterComponent();
+			// Outer를 이 플레이어(this)로 지정하여 컴포넌트를 생성합니다.
+			USkillBaseComp* NewSkill = NewObject<USkillBaseComp>(this, SkillClass);
+			if (NewSkill)
+			{
+				// 생성 직후에는 액터에 완전히 등록하지 않고(Tick 정지) 인벤토리에만 보관합니다.
+				NewSkill->SetComponentTickEnabled(false);
+				MySkillInventory.Add(NewSkill);
+			}
 		}
 	}
+	
+	// 게임 시작 시 0번째 스킬을 기본 스킬로 장착합니다.
+	if (MySkillInventory.IsValidIndex(2))
+	{
+		SwitchSkill(2);
+	}
 }
+
+
+void AAPlayer::SwitchSkill(int32 Index)
+{
+	if (!MySkillInventory.IsValidIndex(Index) || !MySkillInventory[Index])
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[SwitchSkill] 유효하지 않은 스킬 인덱스이거나 스킬이 비어있습니다."));
+		return;
+	}
+
+	// 기존에 사용 중이던 스킬이 있다면 정리 작업을 해줍니다.
+	if (ActiveSkillComp)
+	{
+		// 쿨다운 중이거나 효과 발동 중인 틱을 끄고 액터 레이어에서 해제(Unregister)합니다.
+		ActiveSkillComp->SetComponentTickEnabled(false);
+		ActiveSkillComp->UnregisterComponent();
+	}
+
+	ActiveSkillComp = MySkillInventory[Index];
+	if (ActiveSkillComp)
+	{
+		ActiveSkillComp->RegisterComponent();
+		if (ActiveSkillComp->CurrentSkillCoolTime > 0.0f)
+		{
+			ActiveSkillComp->SetComponentTickEnabled(true);
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("스킬 교체 완료: %s"), *ActiveSkillComp->GetName());
+	}
+}
+
 void AAPlayer::SwitchWeapon(int32 Index)
 {
 	if (!MyWeaponInventory.IsValidIndex(Index) || !MyWeaponInventory[Index])
@@ -197,7 +241,6 @@ void AAPlayer::Shooting(const FInputActionValue& Value)
 		}
 	}
 }
-
 void AAPlayer::Interact(const FInputActionValue& Value)
 {
 	if (CurrentTargetStructure)
@@ -211,7 +254,6 @@ void AAPlayer::Interact(const FInputActionValue& Value)
 		UE_LOG(LogTemp, Warning, TEXT("[Player] 주변에 상호작용 가능한 토템이 없습니다."));
 	}
 }
-
 void AAPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -246,9 +288,9 @@ void AAPlayer::Tick(float DeltaTime)
 }
 void AAPlayer::SkillInputKey(const FInputActionValue& Value)
 {
-	if (USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance))
+	if (ActiveSkillComp)
 	{
-		Skill->ActiveSkill();
+		ActiveSkillComp->ActiveSkill();
 	}
 }
 void AAPlayer::NotifyControllerChanged()
@@ -372,20 +414,19 @@ void AAPlayer::LevelUpStat()
 }
 void AAPlayer::DecreaseSkillCoolTime(float SkillCoolTime)
 {
-	if (SkillInstance)
+	if (ActiveSkillComp)
 	{
-		USkillBaseComp* Skill = Cast<USkillBaseComp>(SkillInstance);
+		USkillBaseComp* Skill = Cast<USkillBaseComp>(ActiveSkillComp);
 		Skill->	DecreaseTimeSkill(SkillCoolTime);
 	}
 }
-
 
 void AAPlayer::UpgradeWeaponParts(EPartsName PartsType)
 {
 	if (ChildActor && EquipedGun)
 	{
 		EquipedGun->SelectParts(PartsType);
-	}
+	} 
 }		
 FGunParts AAPlayer::GetCurrentWeaponPartsData(EPartsName PartsType)
 {
