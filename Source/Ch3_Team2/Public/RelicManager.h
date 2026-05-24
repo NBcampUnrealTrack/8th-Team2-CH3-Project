@@ -49,8 +49,6 @@ public:
 	ARelicApplyManager* ApplyManager;
 	
 	void RandomRelic();
-	
-	void TossRelicIDs(const TArray<int32>& SaveRelicIDs);
 
 	UFUNCTION(BlueprintCallable, Category = "Relic")
 	void OnEliteMonsterDead();
@@ -60,9 +58,11 @@ public:
 	
 	ERelicGrade NormalRollGrade();
 	
-protected:
+	void LodeData(TArray<int32> RelicIDs);
 	
-	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
+protected:
 	
 };
 

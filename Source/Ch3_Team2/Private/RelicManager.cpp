@@ -10,9 +10,8 @@ ARelicManager::ARelicManager()
 }
 
 
-void ARelicManager::BeginPlay()
+void ARelicManager::LodeData(TArray<int32> RelicIDs)
 {
-	Super::BeginPlay();
 	
 	ApplyManager = GetWorld()->SpawnActor<ARelicApplyManager>(ApplyManagerClass);
 	
@@ -38,6 +37,29 @@ void ARelicManager::BeginPlay()
 		
 		AllRelics.Add(*RelicPtr);
 	}
+	
+	if (RelicIDs.Num() == 0)
+	{
+		return;
+	}
+	
+	OwnedRelicIDs.Empty();
+	
+	for (int32 RelicID : RelicIDs)
+	{
+		OwnedRelicIDs.Add({RelicID, false});
+	}
+}
+
+void ARelicManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{ 
+	/*MasterSubsystem = GetGameInstance()->GetSubsystem<UMasterSubsystem>();
+	if (MasterSubsystem)
+	{
+		MasterSubsystem->OnSaveRelic.Broadcast(OwnedRelicIDs);
+	}
+	
+	Super::EndPlay(EndPlayReason);*/
 }
 
 void ARelicManager::AddOwnedRelic(const FRelicData& NewRelic)
@@ -56,6 +78,7 @@ void ARelicManager::AddOwnedRelic(const FRelicData& NewRelic)
 	}
 	
 	ApplyManager->ApplyRelicById(OwnedRelicIDs);
+	
 }
 
 ERelicGrade ARelicManager::NormalRollGrade()
@@ -140,18 +163,6 @@ void ARelicManager::OnEliteMonsterDead()
 	}
 }
 
-void ARelicManager::TossRelicIDs(const TArray<int32>& SaveRelicIDs)
-{
-	if (SaveRelicIDs.Num() == 0)
-	{
-		return;
-	}
-	
-	OwnedRelicIDs.Empty();
-	
-	for (int32 RelicID : SaveRelicIDs)
-	{
-		OwnedRelicIDs.Add({RelicID, false});
-	}
-	
-}
+
+
+
