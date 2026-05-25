@@ -11,7 +11,7 @@
 #include "Data/MasterSubsystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "Data/LevelFlowSubsystem.h"
 AMonsterBase::AMonsterBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -146,19 +146,20 @@ void AMonsterBase::AfterDeath()
 	DropExpItem();
 	if (StatComp && StatComp->GetMonsterTag()== EMonsterGrade::Boss)
 	{
-		FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
-		if (CurrentLevelName.Contains(TEXT("Level3")))
+		if (ULevelFlowSubsystem* LevelFlowSubsystem = GetGameInstance()->GetSubsystem<ULevelFlowSubsystem>())
 		{
-			if (UMasterSubsystem* MasterSubsystem = GetGameInstance()->GetSubsystem<UMasterSubsystem>())
+			if (LevelFlowSubsystem->GetCurrentLevelIndex() == 3)
 			{
-				MasterSubsystem->OnGameEnd.Broadcast();
+				if (UMasterSubsystem* MasterSubsystem = GetGameInstance()->GetSubsystem<UMasterSubsystem>())
+				{
+					MasterSubsystem->OnGameEnd.Broadcast();
+				}
+			}
+			else
+			{
+				SpawnBossPortal();
 			}
 		}
-		else
-		{
-			SpawnBossPortal();
-		}
-		
 	}
 	
 	
@@ -196,12 +197,14 @@ void AMonsterBase::SpawnBossPortal()
 
 void AMonsterBase::BossAfterDeadth()
 {
-	FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
-	if (CurrentLevelName.Contains(TEXT("Level3")))
+	if (ULevelFlowSubsystem* LevelFlowSubsystem = GetGameInstance()->GetSubsystem<ULevelFlowSubsystem>())
 	{
-		if (AAGameState* GS = GetWorld()->GetGameState<AAGameState>())
+		if (LevelFlowSubsystem->GetCurrentLevelIndex() == 3)
 		{
-			GS->OnStageEnd.Broadcast();
+			if (AAGameState* GS = GetWorld()->GetGameState<AAGameState>())
+			{
+				GS->OnStageEnd.Broadcast();
+			}
 		}
 	}
 }
