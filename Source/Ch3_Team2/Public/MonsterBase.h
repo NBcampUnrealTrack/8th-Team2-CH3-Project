@@ -34,7 +34,7 @@ public:
 	void PlayDeathAnim();
 	
 	UFUNCTION(BlueprintCallable)
-	void BossAfterDeadth();
+	void BossAfterDeath();
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UMonsterStatComponent* StatComp;

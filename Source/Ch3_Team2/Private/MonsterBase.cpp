@@ -195,7 +195,7 @@ void AMonsterBase::SpawnBossPortal()
 	}
 }
 
-void AMonsterBase::BossAfterDeadth()
+void AMonsterBase::BossAfterDeath()
 {
 	if (ULevelFlowSubsystem* LevelFlowSubsystem = GetGameInstance()->GetSubsystem<ULevelFlowSubsystem>())
 	{
