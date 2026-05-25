@@ -17,9 +17,25 @@ void AAGameMode::BeginPlay()
 	Super::BeginPlay();
 	
 	USaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<USaveSubsystem>();
+	if (!IsValid(SaveSubsystem))
+	{
+		return;
+	}
 	ARelicManager* Relic = Cast<ARelicManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ARelicManager::StaticClass()));
+	if (!IsValid(Relic))
+	{
+		return;
+	}
 	AAPlayer* Player = Cast<AAPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), AAPlayer::StaticClass()));
+	if (!IsValid(Player))
+	{
+		return;
+	}
 	AGunBase* Gun = Cast<AGunBase>(UGameplayStatics::GetActorOfClass(GetWorld(), AGunBase::StaticClass()));
+	if (!IsValid(Gun))
+	{
+		return;
+	}
 	
 	// TODO: 순서 보장하면서 값만 넘기기
 	Relic->LoadData(SaveSubsystem->GetRelicIDs());
