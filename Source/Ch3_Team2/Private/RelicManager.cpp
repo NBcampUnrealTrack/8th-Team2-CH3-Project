@@ -123,7 +123,7 @@ void ARelicManager::RandomRelic()
 
 	while (RandomRelicOption.Num() < 3 && TryCount < 100)
 	{
-		TryCount++;
+		TryCount++;	
 
 		ERelicGrade Grade = NormalRollGrade();
 
