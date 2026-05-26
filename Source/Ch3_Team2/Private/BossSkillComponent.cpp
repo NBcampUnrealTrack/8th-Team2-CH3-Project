@@ -101,7 +101,6 @@ void UBossSkillComponent::ExecutePowerSlamHit()
                UCharacterMovementComponent* MoveComp = TargetCharacter->GetCharacterMovement();
                if (MoveComp && MoveComp->IsFalling())
                {
-                   GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("Player Evaded Power Slam by Jumping!"));
                    continue; 
                }
                
