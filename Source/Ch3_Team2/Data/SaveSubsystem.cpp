@@ -46,7 +46,6 @@ void USaveSubsystem::Deinitialize()
         MasterSubsystem->OnSaveRelic.RemoveDynamic(this, &USaveSubsystem::OnMasterSaveRelic);
     }
     
-    // 부모를 마지막에 해제
     Super::Deinitialize();
 }
 
@@ -56,6 +55,7 @@ void USaveSubsystem::SaveGame()
     {
         return;
     }
+    
     UGameplayStatics::SaveGameToSlot(CurrentSave, CurrentSlotName, 0);
 }
 
@@ -113,8 +113,6 @@ void USaveSubsystem::OnMasterBattleResult(int32 MeleeKills, int32 RangedKills, i
     CurrentSave->EliteMeleeKills    = EliteMeleeKills;
     CurrentSave->EliteRangedKills   = EliteRangedKills;
     CurrentSave->BossKills          = BossKills;
-    
-    UE_LOG(LogTemp, Warning, TEXT("보스 %d 마리 죽임"), BossKills);
 }
 
 void USaveSubsystem::OnMasterSaveTime(int32 StageIndex, float ClearTime)
