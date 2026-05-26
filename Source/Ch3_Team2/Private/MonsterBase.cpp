@@ -83,7 +83,7 @@ void AMonsterBase::HandleDeath(AController* InInstigator,AActor* DeathActor)
 		{
 			
 			STComp->StopLogic(TEXT("Aborted"));
-			STComp->Deactivate();z
+			STComp->Deactivate();
 		}
 	}
 	
