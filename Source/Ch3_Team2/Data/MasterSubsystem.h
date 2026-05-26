@@ -28,6 +28,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossMonsterKills);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRelic1125InPossession);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerLevelUp);
+
 UCLASS()
 class CH3_TEAM2_API UMasterSubsystem : public UGameInstanceSubsystem
 {
@@ -63,4 +65,7 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category = "Broadcast")
 	FOnRelic1125InPossession OnRelicInPossession;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Broadcast")
+	FOnPlayerLevelUp OnPlayerLevelUp;
 };
