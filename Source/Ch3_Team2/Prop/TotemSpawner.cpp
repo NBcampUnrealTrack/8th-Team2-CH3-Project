@@ -88,15 +88,17 @@ void ATotemSpawner::RandomSpawnTotem()
 		bool bTooClose = false;
 		for (AHealTotem* ActiveTotem : ActiveTotemList)
 		{
-			if (ActiveTotem)
+			if (!ActiveTotem)
 			{
-				// 새로 뽑은 위치와 이미 배치된 토템들 사이의 거리를 검사
-				float Distance = FVector::Dist(RandomNavLocation.Location, ActiveTotem->GetActorLocation());
-				if (Distance < MinDistanceBetweenTotems)
-				{
-					bTooClose = true;
-					break; // 하나라도 가까우면 루프 탈출
-				}
+				continue;
+			}
+			
+			// 새로 뽑은 위치와 이미 배치된 토템들 사이의 거리를 검사
+			float Distance = FVector::Dist(RandomNavLocation.Location, ActiveTotem->GetActorLocation());
+			if (Distance < MinDistanceBetweenTotems)
+			{
+				bTooClose = true;
+				break; // 하나라도 가까우면 루프 탈출
 			}
 		}
 
@@ -107,7 +109,28 @@ void ATotemSpawner::RandomSpawnTotem()
 			return;
 		}
 		
-		FTransform SpawnTransform(FRotator::ZeroRotator, RandomNavLocation.Location, FVector::OneVector);
+		FVector TraceStart = RandomNavLocation.Location + FVector(0, 0, 500);
+        FVector TraceEnd   = RandomNavLocation.Location - FVector(0, 0, 500);
+        
+        FHitResult HitResult;
+        FCollisionQueryParams Params;
+        Params.AddIgnoredActor(this);
+        
+        FVector SpawnLocation = RandomNavLocation.Location;
+        
+        if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_WorldStatic , Params))
+        {
+        	if (HitResult.ImpactNormal.Z < 0.95f) // 울퉁불퉁한 지형
+        	{
+        		SpawnLocation = HitResult.Location - FVector(0, 0, TotemSinkDepth);
+        	}
+        	else
+        	{
+        		SpawnLocation = HitResult.Location; // 평지
+        	}        
+        }
+		
+		FTransform SpawnTransform(FRotator::ZeroRotator, SpawnLocation, FVector::OneVector);
 		AHealTotem* NewTotem = SpawnHealTotem(SpawnTransform);
 		if (NewTotem)
 		{

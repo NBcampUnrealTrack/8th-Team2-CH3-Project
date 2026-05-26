@@ -24,19 +24,23 @@ protected:
 	TSubclassOf<AHealTotem> TotemClass;
 
 	// 게임 시작할 때 풀에 미리 만들어둘 토템 개수
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnerSettings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpawnerSettings")
 	int32 PreAllocateCount = 11;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnerSettings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpawnerSettings")
 	int32 TargetSpawnCount = 10;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpawnerSettings")
 	float MinDistanceBetweenTotems = 1000.0f;
 	
-	int32 CurrentActiveTotems = 0;
-
-	UPROPERTY(EditAnywhere, Category = "SpawnerSettings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpawnerSettings")
 	float SpawnBound = 25000.0f;
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpawnerSettings")
+	float TotemSinkDepth = 10.f;
+    
+    int32 CurrentActiveTotems = 0;
+
     
 	UFUNCTION()
 	void OnTotemReturned(AActor* ReturnedActor);

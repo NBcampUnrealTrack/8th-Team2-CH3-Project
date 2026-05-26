@@ -3,8 +3,10 @@
 #include "Battle/BattleSubsystem.h"
 #include "public/MonsterBase.h"
 #include "DrawDebugHelpers.h"
+#include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Components/ArrowComponent.h"
 
 bool AGunBase::CanShoot()
 {
@@ -103,8 +105,20 @@ void AGunBase::FireGun(FVector Location, FVector Direction)
 				HitResult.ImpactNormal.Rotation()
 			);
 		}
+		
+		if (TrailEffect)
+		{
+			UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				TrailEffect,
+				FirePoint->GetComponentLocation()
+			);
+			
+			NiagaraComp->SetNiagaraVariableVec3("User.BeamEnd", HitResult.ImpactPoint);
+		}
 	}
 }
+
 void AGunBase::BattleIn(const FHitResult& HitResult)
 {
 	AMonsterBase* Monster = Cast<AMonsterBase>(HitResult.GetActor());
@@ -235,6 +249,7 @@ AGunBase::AGunBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
+
 void AGunBase::BeginPlay()
 {
 	Super::BeginPlay();

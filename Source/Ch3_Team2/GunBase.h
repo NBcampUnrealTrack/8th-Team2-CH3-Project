@@ -89,6 +89,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	UNiagaraSystem* HitEffect;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	UNiagaraSystem* TrailEffect;
+	
 	// Weapon Parts
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon|Parts")
 	FGunParts Bullet;
