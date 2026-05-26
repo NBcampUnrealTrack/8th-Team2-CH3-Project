@@ -14,7 +14,10 @@ class CH3_TEAM2_API ULevelFlowSubsystem : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
+	UFUNCTION(BlueprintCallable, Category = "Level Flow")
 	void TravelToLevelByIndex(int32 LevelIndex);
+	
+	UFUNCTION(BlueprintCallable, Category = "Level Flow")
 	int32 GetCurrentLevelIndex() const { return CurrentLevelIndex; }
 	int32 GetPrevLevelIndex() const { return PrevLevelIndex; }
 	

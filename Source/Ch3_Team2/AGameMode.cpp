@@ -10,12 +10,17 @@ AAGameMode::AAGameMode()
 {
 	DefaultPawnClass = AAPlayer::StaticClass();
 	GameStateClass = AAGameState::StaticClass();
+	
 }
 
 void AAGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &AAGameMode::LoadAllData);
+}
+
+void AAGameMode::LoadAllData()
+{
 	USaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<USaveSubsystem>();
 	if (!IsValid(SaveSubsystem))
 	{
@@ -31,7 +36,7 @@ void AAGameMode::BeginPlay()
 	{
 		return;
 	}
-	AGunBase* Gun = Cast<AGunBase>(UGameplayStatics::GetActorOfClass(GetWorld(), AGunBase::StaticClass()));
+	AGunBase* Gun = Player->EquippedGun;
 	if (!IsValid(Gun))
 	{
 		return;

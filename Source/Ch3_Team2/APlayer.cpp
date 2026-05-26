@@ -359,6 +359,7 @@ void AAPlayer::SaveData()
 	{
 		MasterSubsystem->OnSavePlayer.Broadcast(CurrentLevel,CurrentSkill,CurrentWeapon);
 	}
+	EquippedGun->SaveData();
 }
 void AAPlayer::AddCurrentHp(int32 Add_Hp)
 {
@@ -414,13 +415,19 @@ void AAPlayer::TotalDamageUpGrade(float AddRelicBonus, float TotalBonus,float Cr
 		EquippedGun->AddDamage(AddRelicBonus, TotalBonus, Critical);
 	}
 }
+
 void AAPlayer::LevelUpStat()
 {
 	AddMaxHp(0);	
 	CurrentHp = MaxHp;
 	++CurrentLevel;
 	AddPlayerSpeed(0);
+	if (UMasterSubsystem* MasterSubsystem = GetGameInstance()->GetSubsystem<UMasterSubsystem>())
+	{
+		MasterSubsystem->OnPlayerLevelUp.Broadcast();
+	}
 }
+
 void AAPlayer::DecreaseSkillCoolTime(float SkillCoolTime)
 {
 	if (ActiveSkillComp)
