@@ -270,18 +270,5 @@ void AMonsterSpawner::OnMonsterDiedInstant(AMonsterBase* DeadMonster)
 	if (DeadMonster->GetStatComponent()->GetMonsterTag()==EMonsterGrade::Boss)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
-		TArray<AActor*> OutMonsters;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMonsterBase::StaticClass(), OutMonsters);
-
-		for (AActor* Actor : OutMonsters)
-		{
-			if (AMonsterBase* RemainingMonster = Cast<AMonsterBase>(Actor))
-			{
-				if (RemainingMonster != DeadMonster && !RemainingMonster->GetOnReadyToReturn().IsBound())
-				{
-					RemainingMonster->ForceDeath();
-				}
-			}
-		}
 	}
 }
