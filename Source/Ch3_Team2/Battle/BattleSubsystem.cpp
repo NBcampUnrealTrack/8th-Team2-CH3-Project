@@ -126,7 +126,10 @@ void UBattleSubsystem::ProcessDeathAndKillCount(AActor* Victim)
 	case EMonsterGrade::Boss:
 		{
 			++BossKills;
-			BroadcastBossMonsterKills();
+			if (BossKills < FinalStage)
+			{
+				BroadcastBossMonsterKills();
+			}
 			break;
 		}
 	default:

@@ -45,4 +45,6 @@ private:
 	int32 EliteMeleeKills = 0;
 	int32 EliteRangedKills = 0;
 	int32 BossKills = 0;
+	
+	int32 FinalStage = 3;
 };
