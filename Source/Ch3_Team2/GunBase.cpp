@@ -87,7 +87,7 @@ void AGunBase::FireGun(FVector Location, FVector Direction)
 			FirePoint->GetComponentLocation()
 		);
 		FVector BeamEnd = bHit ? HitResult.ImpactPoint : End;
-		NiagaraComp->SetNiagaraVariableVec3("User.BeamEnd", BeamEnd);
+		NiagaraComp->SetVariableVec3(FName("User.BeamEnd"), BeamEnd);
 	}
 	
 	if (bHit)
