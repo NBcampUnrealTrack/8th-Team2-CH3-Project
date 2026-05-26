@@ -183,7 +183,7 @@ void AMonsterBase::SpawnBossPortal()
 	UWorld* World = GetWorld();
 	if (World && PortalClass)
 	{
-		FVector SpawnLocation = GetActorLocation() + FVector(0.f,0.f,100.f);
+		FVector SpawnLocation = GetActorLocation() + FVector(0.f,0.f,130.f);
         
 		FRotator SpawnRotation = GetActorRotation();
         
