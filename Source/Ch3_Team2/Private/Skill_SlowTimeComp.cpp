@@ -4,6 +4,11 @@
 
 void USkill_SlowTimeComp::ActiveSkill()
 {
+	if (CurrentSkillCoolTime > 0.0f)
+	{
+		return;
+	}
+	
 	Super::ActiveSkill();
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WorldTime);
 

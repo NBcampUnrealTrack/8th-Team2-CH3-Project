@@ -1,7 +1,6 @@
 #include "SBW/SkillOverDrive.h"
 #include "APlayer.h"
 #include "GunBase.h"
-#include "APlayer.h"
 
 void USkillOverDrive::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
@@ -12,11 +11,13 @@ void USkillOverDrive::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void USkillOverDrive::ActiveSkill()
 {
-	Super::ActiveSkill();
-	if (bSkillActiveCheck == false)
+	if (bSkillActiveCheck == false || CurrentSkillCoolTime > 0.0f)
 	{
 		return;
 	}
+	
+	Super::ActiveSkill();
+
 	AAPlayer* PlayerOwner = Cast<AAPlayer>(GetOwner());
 	if (!PlayerOwner)
 	{
