@@ -122,8 +122,11 @@ void AMonsterBase::SetMonsterStats(const FMonsterStats& InStats)
 void AMonsterBase::OnSpawnFromPool(const FTransform& Transform)
 {
 	SetActorLocationAndRotation(Transform.GetLocation(),Transform.GetRotation());
-	GetCharacterMovement()->StopMovementImmediately();
-	
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		GetCharacterMovement()->StopMovementImmediately();
+	}
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
