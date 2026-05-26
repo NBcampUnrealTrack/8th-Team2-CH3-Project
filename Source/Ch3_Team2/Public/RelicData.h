@@ -34,7 +34,7 @@ public:
 	FText Description;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UTexture2D* RelicImage;
+	UTexture2D* RelicImage = nullptr;
 	
 };
 

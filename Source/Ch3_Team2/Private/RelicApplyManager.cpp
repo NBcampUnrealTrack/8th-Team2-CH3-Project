@@ -12,6 +12,7 @@
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/WidgetComponent.h"
+#include "Algo/Count.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 
 void ARelicApplyManager::ApplyRelicById(TArray<TPair<int32, bool>> &RelicIDs)
@@ -286,16 +287,9 @@ void ARelicApplyManager::Relic1121()
 
 void ARelicApplyManager::Relic1122(TArray<TPair<int32,bool>> OwnRelicCount)
 {
-    int32 RelicCount = 0;
-    for (TPair<int32,bool> Relic : OwnRelicCount)
-    {
-        if (Relic.Value == true)
-        {
-            RelicCount++;
-        }
-    }
-    RelicStatUp(10 * (RelicCount + 1),ERelicStatType::MaxHP);
-    RelicStatUp(1 * (RelicCount + 1),ERelicStatType::AmmoDamage);
+    int32 FalseCount = Algo::CountIf(OwnRelicCount, [](const TPair<int32,bool>& Pair){return Pair.Value == false;});
+    RelicStatUp(10 * (FalseCount + 1),ERelicStatType::MaxHP);
+    RelicStatUp(1 * (FalseCount + 1),ERelicStatType::AmmoDamage);
 }
 
 void ARelicApplyManager::Relic1123()
