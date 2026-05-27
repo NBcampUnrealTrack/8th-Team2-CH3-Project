@@ -1,0 +1,71 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "MasterSubsystem.generated.h"
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSaveRelic, TArray<int32>, RelicIDs);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSavePlayer, int32, PlayerLevel, int32, PlayerSkill, int32, PlayerWeapon);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnSaveGun, int32, GripLevel, int32, ScopeLevel, int32, MagazineLevel, int32, BulletLevel);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameEnd);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnBattleResult, 
+	int32, MeleeKills,		int32, RangedKills,
+	int32, EliteMeleeKills,	int32, EliteRangedKills,
+	int32, BossKills,		int32, GlobalTotalDamage);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSaveTime, int32, StageIndex, float, ClearTime);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowStatisticsUI);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEliteMonsterKills);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossMonsterKills);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRelic1125InPossession);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerLevelUp);
+
+UCLASS()
+class CH3_TEAM2_API UMasterSubsystem : public UGameInstanceSubsystem
+{
+	GENERATED_BODY()
+	
+public:
+	UPROPERTY()
+	FOnSaveRelic OnSaveRelic;
+	
+	UPROPERTY()
+	FOnSavePlayer OnSavePlayer;
+	
+	UPROPERTY()
+	FOnSaveGun OnSaveGun;
+	
+	UPROPERTY()
+	FOnGameEnd OnGameEnd;
+	
+	UPROPERTY()
+	FOnBattleResult OnBattleResult;
+	
+	UPROPERTY()
+	FOnSaveTime OnSaveTime;
+	
+	UPROPERTY()
+	FOnShowStatisticsUI OnShowStatisticsUI;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Broadcast")
+	FOnEliteMonsterKills OnEliteMonsterKills;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Broadcast")
+	FOnBossMonsterKills OnBossMonsterKills;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Broadcast")
+	FOnRelic1125InPossession OnRelicInPossession;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Broadcast")
+	FOnPlayerLevelUp OnPlayerLevelUp;
+};

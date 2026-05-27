@@ -1,0 +1,75 @@
+#include "SBW/SkillOverDrive.h"
+#include "APlayer.h"
+#include "GunBase.h"
+
+void USkillOverDrive::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorld()->GetTimerManager().ClearTimer(SkillTimerHandle);
+	
+	Super::EndPlay(EndPlayReason);
+}
+
+void USkillOverDrive::ActiveSkill()
+{
+	if (bSkillActiveCheck == false || CurrentSkillCoolTime > 0.0f)
+	{
+		return;
+	}
+	
+	Super::ActiveSkill();
+
+	AAPlayer* PlayerOwner = Cast<AAPlayer>(GetOwner());
+	if (!PlayerOwner)
+	{
+		return;
+	}
+
+	if (PlayerOwner->ChildActors)
+	{
+		AGunBase* CachedGun = Cast<AGunBase>(PlayerOwner->ChildActors->GetChildActor());
+		// 무기가 성공적으로 캐싱되었다면 스킬 로직을 실행합니다.
+		if (CachedGun)
+		{
+			//float CurrentSpeed = GetOwner()->GetActorSpeed();
+			SaveReload = CachedGun->GetReloadSpeed();
+			SaveReload *= Percent;
+			CachedGun->DecreaseReloadTimeStat(SaveReload);
+			
+			SaveSpeed = PlayerOwner->GetSpeed();
+			SaveSpeed *= Percent;
+			
+ 			PlayerOwner->AddPlayerSpeed(SaveSpeed);
+			bSkillActiveCheck = false;
+
+			// 타이머 설정
+			GetWorld()->GetTimerManager().SetTimer(
+				SkillTimerHandle,
+				this,
+				&USkillOverDrive::EndSkill,
+				ActiveSkillTime,
+				false
+			);
+		}
+	}
+}
+
+void USkillOverDrive::EndSkill()
+{
+	GetWorld()->GetTimerManager().ClearTimer(SkillTimerHandle);
+	AAPlayer* PlayerOwner = Cast<AAPlayer>(GetOwner());
+	if (!PlayerOwner)
+	{
+		return;
+	}
+
+	AGunBase* CachedGun = Cast<AGunBase>(PlayerOwner->ChildActors->GetChildActor());
+	if (CachedGun)
+	{
+		// [스탯 원상 복구]
+		PlayerOwner->AddPlayerSpeed(-SaveSpeed);
+		CachedGun->DecreaseReloadTimeStat(-SaveReload); 
+		SaveSpeed = 0.0f;
+		SaveReload = 0.0f;
+	}
+	bSkillActiveCheck= true;
+}

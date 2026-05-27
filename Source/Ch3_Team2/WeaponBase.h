@@ -1,0 +1,89 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "WeaponBase.generated.h"
+
+UCLASS()
+class CH3_TEAM2_API AWeaponBase : public AActor
+{
+	GENERATED_BODY()
+	
+public:	
+	// Sets default values for this actor's properties
+	AWeaponBase();
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<USceneComponent> Root;
+
+	// Gun SkeletalMesh
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USkeletalMeshComponent* GunMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<class UArrowComponent> FirePoint;
+
+	// 기본 스텟은 샷건 기준으로 되어 있습니다.
+	//기본 공격력
+	UPROPERTY(EditAnywhere, BlueprintReadWrite , Category= "Stat")
+	float BaseDamage =  25.0f;
+	
+	// 성유물로 증가한 공격력
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	float RelicBonus = 0.0f;
+	
+	// 전체 공격력 증가 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	float TotalBonus = 0.0f;
+
+	// 최종 공격력 ( 계산 다된거 )  
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	float FinalDamage = 0.0f;
+	
+	// 크리티컬 데미지
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	float CritMultiplier = 2.0f;
+
+	
+	//탄약 보유량
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	int32 MaxAmmo = 8;
+	//남은 탄약수
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category= "Stat")
+	int32 CurrentAmmo = 8;
+
+	//연사속도
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	float RoundsPerSecond = 1.0f;
+
+	//유효사거리
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	float EffectiveRange = 1000.0f;
+	
+	// 사격 가능 여부 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category= "Stat")
+	bool CanFire = true;
+
+	// 반동
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	float Recoil =1.5f;
+	
+	// 장전시간
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	float ReloadTime = 1.2f;
+	
+	// 집탄률	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	float SpreadAngleDegrees = 12.0f;
+		
+	bool bReloadingCheck = false;
+	
+	FTimerHandle TimeReloadDelay;
+	
+	FTimerHandle TimerFireDelay;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stat")
+	bool bIsAutomatic = false;
+};
