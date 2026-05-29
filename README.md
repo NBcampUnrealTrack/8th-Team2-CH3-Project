@@ -16,7 +16,18 @@
 
 폐기장에서 거두어진 구형 휴머노이드가 멈춰가는 태엽 심장을 버티기 위해 외계인 구역에 잠입하는 **뱀파이어 서바이벌류 FPS**입니다. 적을 섬멸하며 얻은 부품과 성유물로 한 판(Run) 동안 폭발적으로 성장하고, 마지막 스테이지 보스를 처치해 외계 코어를 획득하는 것이 목표입니다.
 
-### 시연 영상
+---
+
+## 🎮 다운로드 & 플레이
+
+[Xenoforce 게임 다운로드 클릭](https://github.com/NBcampUnrealTrack/8th-Team2-CH3-Project/releases/latest)
+
+1. [Releases](.../releases/latest)에서 zip 다운로드 후 압축 해제
+2. `XENOFORCE.exe` 실행
+
+---
+
+## 시연 영상
 아래 이미지를 클릭하시면 Youtube로 연결됩니다.
 
 <a href="https://youtu.be/wUI6Zz-XDCY">
