@@ -1,7 +1,5 @@
 # Xenoforce
 
-> 외계 문명에 점령된 지구에서, 강해지기 위해 외계 구역에 잠입한 휴머노이드를 조종하는 SF 로그라이크 FPS.
-
 ![Engine](https://img.shields.io/badge/Engine-Unreal%20Engine%205-0E1128?logo=unrealengine)
 ![Genre](https://img.shields.io/badge/Genre-Roguelike%20FPS-blue)
 ![Concept](https://img.shields.io/badge/Concept-SF-7B2FF7)
@@ -18,7 +16,12 @@
 
 폐기장에서 거두어진 구형 휴머노이드가 멈춰가는 태엽 심장을 버티기 위해 외계인 구역에 잠입하는 **뱀파이어 서바이벌류 FPS**입니다. 적을 섬멸하며 얻은 부품과 성유물로 한 판(Run) 동안 폭발적으로 성장하고, 마지막 스테이지 보스를 처치해 외계 코어를 획득하는 것이 목표입니다.
 
-**3 Key Pillars** — 수집을 통한 진화 · 폭발적인 화력의 카타르시스 · 시각적 불협화음
+### 시연 영상
+아래 이미지를 클릭하시면 Youtube로 연결됩니다.
+
+<a href="https://youtu.be/wUI6Zz-XDCY">
+  <img src="https://img.youtube.com/vi/wUI6Zz-XDCY/maxresdefault.jpg" width="1000"/>
+</a>
 
 ---
 
@@ -204,14 +207,18 @@
 
 | 구분 | 변수명 | 자료형 | 기본값 |
 | --- | --- | --- | --- |
-| 데이터 버전 | `SaveVersion` | int32 | 1 |
+| 데이터 버전 | `SaveVersion` | int32 | 3 |
+| 보유 유물 | `RelicIDs` | TArray\<int32\> | - |
 | 플레이어 레벨 | `PlayerLevel` | int32 | 0 |
-| 선택 캐릭터 | `Character` | int32 | 0 |
-| 선택 무기 | `Weapon` | int32 | 0 |
-| 스테이지 1~3 기록 | `Stage1~3Time` | float | 0.0 |
-| 처치 수 | `MeleeKills` / `RangedKills` / `EliteMeleeKills` / `EliteRangedKills` / `BossKills` | int32 | 0 |
+| 선택 스킬 | `PlayerSkill` | int32 | 0 |
+| 선택 무기 | `PlayerWeapon` | int32 | 0 |
+| 그립 강화 레벨 | `GripLevel` | int32 | 0 |
+| 스코프 강화 레벨 | `ScopeLevel` | int32 | 0 |
+| 탄창 강화 레벨 | `MagazineLevel` | int32 | 0 |
+| 탄환 강화 레벨 | `BulletLevel` | int32 | 0 |
+| 스테이지 클리어 기록 | `StageClearTime` | TArray\<float\> | {0.f, 0.f, 0.f} |
+| 처치 수 | `MeleeKills` / `RangedKills`<br>`EliteMeleeKills` / `EliteRangedKills`<br>`BossKills` | int32 | 0 |
 | 누적 데미지 | `TotalDamage` | int32 | 0 |
-| 보유 재화 | `Currency` | int32 | 0 |
 
 </details>
 
@@ -279,33 +286,13 @@ end
 - **Data**: `DataTable` / `DataAsset` 로 밸런스 수치 일괄 관리
 - **주요 시스템**: `LevelFlowSystem`(레벨 전환), `Battle System`(전투 계산·통계), `SaveSystem`(직렬화), Object Pool 스폰
 
-## 프로젝트 구조
+---
 
-```
-8th-Team2-CH3-Project/
-├── Content/            # 에셋 (블루프린트, 머티리얼, 데이터 테이블 등)
-├── Source/             # C++ 소스
-├── Config/             # 프로젝트 설정
-└── Ch3_Team2.uproject  # 프로젝트 파일
-```
-
-## 빌드 & 실행
-
-1. 저장소 클론
-   ```bash
-   git clone https://github.com/NBcampUnrealTrack/8th-Team2-CH3-Project.git
-   ```
-2. `.uproject` 우클릭 → **Generate Visual Studio project files**
-3. 솔루션(`.sln`)을 Visual Studio에서 열고 **Development Editor** 구성으로 빌드
-4. Unreal Editor 실행 후 Play, 또는 패키징하여 PC 빌드 생성
-
-## 팀
-
-내일배움캠프 Unreal 트랙 8기 · Team 2
+## 팀 구성
 
 | 이름 | 역할 |
 | --- | --- |
-| 신보원 | 팀장, 플레이어, 스킬, 무기 |
+| 신보원 | 플레이어, 스킬, 무기 |
 | 김지원 | 서브 기획, PR 리뷰, 아트 메인, SaveSubSystem, LevelFlowSubSystem |
 | 고예현 | 메인 기획, PR 리뷰, 아트 서브, BattleSubSystem, 힐 토템 |
 | 양준우 | 서브 기획, 성유물 시스템 |
